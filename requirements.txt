@@ -1,7 +1,10 @@
-fastapi
+fastapi~=0.115.12
 uvicorn[standard]
 sqlalchemy
-pydantic
+pydantic~=2.10.6
 alembic
 pytest
-python-dotenv
+python-dotenv~=1.1.0
+PyJWT~=2.10.1
+passlib~=1.7.4
+bcrypt~=4.3.0
