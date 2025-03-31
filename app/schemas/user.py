@@ -37,7 +37,7 @@ class ProfileUpdateRequest(BaseModel):
 
 class SetAvatarRequest(BaseModel):
     user: int
-    image: str  # BASE64 строка или другой формат, как заглушка
+    image: str
 
 
 class UserSetAvatarRequest(BaseModel):

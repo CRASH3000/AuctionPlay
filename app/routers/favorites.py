@@ -1,20 +1,29 @@
 from fastapi import APIRouter, HTTPException, Depends
+from sqlalchemy import literal
+from sqlalchemy.future import select
+from sqlalchemy.ext.asyncio import AsyncSession
+
 from app.routers.auth import get_current_user
-from app.models.user import User
+from db.models import Post, Favorite
+from db.db import get_session
 
 router = APIRouter()
 
-favorites_db = {}  # тут пока хранятся избранные посты
-
 
 @router.post("/favorites", summary="Добавить пост в избранное")
-def add_to_favorites(post_id: int, current_user: User = Depends(get_current_user)):
-    from app.routers.posts import posts_db
-    if not any(p["id"] == post_id for p in posts_db):
+async def add_to_favorites(post_id: int,
+                           current_user=Depends(get_current_user),
+                           session: AsyncSession = Depends(get_session)):
+    result = await session.execute(select(Post).where(Post.id == literal(post_id)))
+    post = result.scalar_one_or_none()
+    if post is None:
         raise HTTPException(status_code=404, detail="Пост не найден")
-    user_favorites = favorites_db.get(current_user.id, [])
-    if post_id in user_favorites:
+    result = await session.execute(
+        select(Favorite).where(Favorite.user_id == current_user.id, Favorite.post_id == literal(post_id)))
+    existing = result.scalar_one_or_none()
+    if existing:
         return {"status": "ok", "message": "Пост уже в избранном"}
-    user_favorites.append(post_id)
-    favorites_db[current_user.id] = user_favorites
+    favorite = Favorite(user_id=current_user.id, post_id=post_id)
+    session.add(favorite)
+    await session.commit()
     return {"status": "ok"}

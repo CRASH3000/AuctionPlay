@@ -19,7 +19,3 @@ class User:
         self.avatar = avatar
         self.firstname = firstname
         self.lastname = lastname
-
-
-# Временное хранилище юзеров, позже замена на БД
-users_db = []
