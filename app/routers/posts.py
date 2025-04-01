@@ -45,7 +45,7 @@ async def get_post(post_id: int, session: AsyncSession = Depends(get_session)):
 
 
 @router.post("/posts", response_model=dict, summary="Создать пост")
-async def create_post(post: PostCreate,
+async def create_post(post: PostCreate = Depends(PostCreate.as_form),
                       current_user=Depends(get_current_user),
                       session: AsyncSession = Depends(get_session)):
     if current_user.role.name != "seller":

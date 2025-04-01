@@ -1,5 +1,5 @@
 from fastapi import FastAPI
-from app.routers import auth, profile, posts, comments, favorites
+from app.routers import auth, profile, posts, comments, favorites, admin
 from fastapi.openapi.utils import get_openapi
 
 app = FastAPI()
@@ -15,7 +15,7 @@ app.include_router(profile.router, tags=["Profile"])
 app.include_router(posts.router, tags=["Posts"])
 app.include_router(comments.router, tags=["Comments"])
 app.include_router(favorites.router, tags=["Favorites"])
-
+app.include_router(admin.router, tags=["Admin"])
 
 def custom_openapi():
     if app.openapi_schema:

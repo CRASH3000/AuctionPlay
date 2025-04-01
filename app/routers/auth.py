@@ -17,7 +17,7 @@ router = APIRouter()
 
 
 @router.post("/registration", summary="Регистрация пользователя")
-async def registration(response: Response, reg_req: RegistrationRequest, session: AsyncSession = Depends(get_session)):
+async def registration(response: Response, reg_req: RegistrationRequest = Depends(RegistrationRequest.as_form), session: AsyncSession = Depends(get_session)):
     result = await session.execute(select(User).where(or_(User.username == reg_req.username,
                                                           User.email == reg_req.email)))
     existing = result.scalar_one_or_none()
@@ -49,7 +49,7 @@ async def registration(response: Response, reg_req: RegistrationRequest, session
 
 
 @router.post("/auth", summary="Вход пользователя")
-async def auth(response: Response, auth_req: AuthRequest, session: AsyncSession = Depends(get_session)):
+async def auth(response: Response, auth_req: AuthRequest = Depends(AuthRequest.as_form), session: AsyncSession = Depends(get_session)):
     result = await session.execute(select(User).where(User.username == literal(auth_req.username)))
     user = result.scalar_one_or_none()
     if not user or not verify_password(auth_req.password, user.password):
@@ -63,7 +63,7 @@ async def auth(response: Response, auth_req: AuthRequest, session: AsyncSession 
 
 
 # Зависимость для получения текущего пользователя из токена
-async def get_current_user(jwt_access: str = Cookie(None), session: AsyncSession = Depends(get_session)):
+async def get_current_user(jwt_access: str = Cookie(None, include_in_schema=False), session: AsyncSession = Depends(get_session)):
     if jwt_access is None:
         raise HTTPException(status_code=401, detail="Пользователь не авторизован")
     try:
@@ -100,7 +100,7 @@ async def me(current_user: User = Depends(get_current_user)):
 
 
 @router.post("/jwt", summary="Обновить токены")
-async def refresh_jwt(response: Response, jwt_request: str = Cookie(None),
+async def refresh_jwt(response: Response, jwt_request: str = Cookie(None, include_in_schema=False),
                       session: AsyncSession = Depends(get_session)):
     if jwt_request is None:
         raise HTTPException(status_code=401, detail="Refresh токен отсутствует")
@@ -124,7 +124,8 @@ async def refresh_jwt(response: Response, jwt_request: str = Cookie(None),
 
 
 @router.post("/set_avatar", summary="Установка или обновление аватара")
-async def set_avatar(response: Response, avatar_req: SetAvatarRequest, current_user: User = Depends(get_current_user),
+async def set_avatar(response: Response, avatar_req: SetAvatarRequest = Depends(SetAvatarRequest.as_form),
+                     current_user: User = Depends(get_current_user),
                      session: AsyncSession = Depends(get_session)):
     if avatar_req.user != current_user.id:
         raise HTTPException(status_code=403, detail="Нельзя обновить аватар другого пользователя")
@@ -141,47 +142,3 @@ async def logout(response: Response, current_user: User = Depends(get_current_us
     return {"status": "ok", "message": "Logged out successfully"}
 
 
-@router.delete("/users/{user_id}", summary="Удаление пользователя по ID")
-async def delete_user(user_id: int, current_user: User = Depends(get_current_user),
-                      session: AsyncSession = Depends(get_session)):
-    if current_user.role.name != "admin":
-        raise HTTPException(status_code=403, detail="Нет доступа: требуется администратор")
-    result = await session.execute(select(User).where(User.id == literal(user_id)))
-    target = result.scalar_one_or_none()
-    if target is None:
-        raise HTTPException(status_code=404, detail="Пользователь не найден")
-    await session.delete(target)
-    await session.commit()
-    return {"status": "ok", "message": f"User with id {user_id} deleted"}
-
-
-@router.get("/users/{user_id}", summary="Получение пользователя по ID", response_model=UserResponse)
-async def get_user(user_id: int, current_user: User = Depends(get_current_user),
-                   session: AsyncSession = Depends(get_session)):
-    if current_user.role.name != "admin":
-        raise HTTPException(status_code=403, detail="Нет доступа: требуется администратор")
-    result = await session.execute(select(User).where(User.id == literal(user_id)))
-    user = result.scalar_one_or_none()
-    if user is None:
-        raise HTTPException(status_code=404, detail="Пользователь не найден")
-    return UserResponse(
-        id=user.id,
-        username=user.username,
-        firstname=user.firstname,
-        lastname=user.lastname,
-        email=user.email,
-        telegram_username=user.telegram_username,
-        avatar=user.avatar,
-        created_at=user.created_at.strftime("%Y-%m-%d %H:%M:%S") if user.created_at else "",
-        updated_at=user.updated_at.strftime("%Y-%m-%d %H:%M:%S") if user.updated_at else ""
-    )
-
-
-@router.get("/users", summary="Получение списка всех пользователей")
-async def get_users(current_user: User = Depends(get_current_user), session: AsyncSession = Depends(get_session)):
-    if current_user.role.name != "admin":
-        raise HTTPException(status_code=403, detail="Нет доступа: требуется администратор")
-    result = await session.execute(select(User))
-    users = result.scalars().all()
-    users_list = [{"id": user.id, "username": user.username, "email": user.email} for user in users]
-    return {"status": "ok", "users": users_list}
