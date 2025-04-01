@@ -19,19 +19,17 @@ depends_on: Union[str, Sequence[str], None] = None
 
 
 def upgrade() -> None:
-    from sqlalchemy import table, column
-    from sqlalchemy import String, Integer
-    roles_table = table('roles',
-                        column('id', Integer),
-                        column('name', String)
-                        )
-    op.bulk_insert(roles_table, [
-        {'name': 'guest'},
-        {'name': 'user'},
-        {'name': 'seller'},
-        {'name': 'admin'},
-    ])
-
+    from sqlalchemy.sql import text
+    op.execute(
+        text("""
+            INSERT INTO roles (name) VALUES
+            ('guest'),
+            ('user'),
+            ('seller'),
+            ('admin')
+            ON CONFLICT (name) DO NOTHING;
+        """)
+    )
 
 def downgrade() -> None:
     op.execute("DELETE FROM roles WHERE name IN ('guest', 'user', 'seller', 'admin')")
