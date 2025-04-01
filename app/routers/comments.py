@@ -15,7 +15,7 @@ router = APIRouter()
 
 
 @router.post("/comments", response_model=dict, summary="Сделать ставку")
-async def create_comment(comment: CommentCreate,
+async def create_comment(comment: CommentCreate = Depends(CommentCreate.as_form),
                          current_user=Depends(get_current_user),
                          session: AsyncSession = Depends(get_session)):
     result = await session.execute(select(Post).where(Post.id == literal(comment.post_id)))
