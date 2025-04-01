@@ -2,10 +2,22 @@ from typing import Optional
 
 
 class User:
-    def __init__(self, id: int, username: str, email: str, telegram_username: str, hashed_password: str,
-                 jwt_access: Optional[str] = None, jwt_request: Optional[str] = None,
-                 created_at: Optional[str] = None, updated_at: Optional[str] = None, role: str = "admin",
-                 avatar: str = "/avatars/default.png", firstname: str = "", lastname: str = ""):
+    def __init__(
+        self,
+        id: int,
+        username: str,
+        email: str,
+        telegram_username: str,
+        hashed_password: str,
+        jwt_access: Optional[str] = None,
+        jwt_request: Optional[str] = None,
+        created_at: Optional[str] = None,
+        updated_at: Optional[str] = None,
+        role: str = "admin",
+        avatar: str = "/avatars/default.png",
+        firstname: str = "",
+        lastname: str = "",
+    ):
         self.id = id
         self.username = username
         self.email = email

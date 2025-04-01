@@ -36,7 +36,7 @@ class User(Base):
     created_at = Column(DateTime(timezone=True), default=datetime.utcnow)
     updated_at = Column(DateTime(timezone=True), onupdate=datetime.utcnow)
     active = Column(Boolean, default=True)
-    posts = relationship("Post", back_populates="author", foreign_keys='Post.author_id')
+    posts = relationship("Post", back_populates="author", foreign_keys="Post.author_id")
     comments = relationship("Comment", back_populates="user")
     favorites = relationship("Favorite", back_populates="user")
 
@@ -51,7 +51,9 @@ class Post(Base):
     duration = Column(String(10))
     time_until_locked = Column(DateTime(timezone=True))
     author_id = Column(Integer, ForeignKey("users.id"))
-    author = relationship("User", back_populates="posts", foreign_keys=lambda: [Post.author_id])
+    author = relationship(
+        "User", back_populates="posts", foreign_keys=lambda: [Post.author_id]
+    )
     winner_id = Column(Integer, ForeignKey("users.id"), nullable=True)
     winner = relationship("User", foreign_keys=lambda: [Post.winner_id])
     created_at = Column(DateTime(timezone=True), default=datetime.utcnow)

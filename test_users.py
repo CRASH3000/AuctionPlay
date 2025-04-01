@@ -10,7 +10,9 @@ from app.core.security import get_password_hash
 
 async def test_users():
     async with async_session() as session:
-        result = await session.execute(select(Role).where(Role.name == literal("admin")))
+        result = await session.execute(
+            select(Role).where(Role.name == literal("admin"))
+        )
         admin_role = result.scalar_one_or_none()
         if admin_role is None:
             admin_role = Role(name="admin")
@@ -18,7 +20,9 @@ async def test_users():
             await session.commit()
             await session.refresh(admin_role)
 
-        result = await session.execute(select(Role).where(Role.name == literal("seller")))
+        result = await session.execute(
+            select(Role).where(Role.name == literal("seller"))
+        )
         seller_role = result.scalar_one_or_none()
         if seller_role is None:
             seller_role = Role(name="seller")
@@ -36,7 +40,7 @@ async def test_users():
             role_id=admin_role.id,
             created_at=datetime.now(timezone.utc),
             updated_at=datetime.now(timezone.utc),
-            active=True
+            active=True,
         )
 
         seller_user = User(
@@ -49,7 +53,7 @@ async def test_users():
             role_id=seller_role.id,
             created_at=datetime.now(timezone.utc),
             updated_at=datetime.now(timezone.utc),
-            active=True
+            active=True,
         )
 
         session.add_all([admin_user, seller_user])
@@ -65,8 +69,10 @@ async def test_users():
         print("Тестовые юзеры:")
         for user in users:
             role_name = user.role.name if user.role else "N/A"
-            print(f"ID: {user.id}, Ник: {user.username}, Пароль: тот же, что и ник, "
-                  f"Почта: {user.email}, Роль: {role_name}")
+            print(
+                f"ID: {user.id}, Ник: {user.username}, Пароль: тот же, что и ник, "
+                f"Почта: {user.email}, Роль: {role_name}"
+            )
 
 
 if __name__ == "__main__":

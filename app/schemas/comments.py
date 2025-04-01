@@ -10,9 +10,9 @@ class CommentCreate(BaseModel):
 
     @classmethod
     def as_form(
-            cls,
-            post_id: int = Form(),
-            price: int = Form(),
+        cls,
+        post_id: int = Form(),
+        price: int = Form(),
     ):
         return cls(post_id=post_id, price=price)
 

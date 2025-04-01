@@ -17,6 +17,7 @@ app.include_router(comments.router, tags=["Comments"])
 app.include_router(favorites.router, tags=["Favorites"])
 app.include_router(admin.router, tags=["Admin"])
 
+
 def custom_openapi():
     if app.openapi_schema:
         return app.openapi_schema
@@ -27,11 +28,7 @@ def custom_openapi():
         routes=app.routes,
     )
     openapi_schema["components"]["securitySchemes"] = {
-        "cookieAuth": {
-            "type": "apiKey",
-            "in": "cookie",
-            "name": "jwt"
-        }
+        "cookieAuth": {"type": "apiKey", "in": "cookie", "name": "jwt"}
     }
 
     if "/me" in openapi_schema["paths"]:

@@ -14,14 +14,15 @@ class PostCreate(BaseModel):
 
     @classmethod
     def as_form(
-            cls,
-            title: str = Form(),
-            text: str = Form(),
-            cover: str = Form(),
-            price: int = Form(),
-            duration: str = Form(),
+        cls,
+        title: str = Form(),
+        text: str = Form(),
+        cover: str = Form(),
+        price: int = Form(),
+        duration: str = Form(),
     ):
         return cls(title=title, text=text, cover=cover, price=price, duration=duration)
+
 
 class PostResponse(BaseModel):
     id: int
@@ -34,10 +35,6 @@ class PostResponse(BaseModel):
     active: bool
     winner: Optional[AuthorResponse] = None
 
-
-
     class Config:
         from_attributes = True
-        json_encoders = {
-            datetime: lambda v: v.strftime("%Y-%m-%d %H:%M:%S")
-        }
+        json_encoders = {datetime: lambda v: v.strftime("%Y-%m-%d %H:%M:%S")}

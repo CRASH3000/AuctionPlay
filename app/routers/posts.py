@@ -14,11 +14,15 @@ from db.models import Post, Comment, User
 router = APIRouter()
 
 
-@router.get("/posts", response_model=List[PostResponse], summary="Получить список постов")
-async def get_posts(limit: int = Query(5, ge=1),
-                    page: int = Query(1, ge=1),
-                    archive: bool = Query(False),
-                    session: AsyncSession = Depends(get_session)):
+@router.get(
+    "/posts", response_model=List[PostResponse], summary="Получить список постов"
+)
+async def get_posts(
+    limit: int = Query(5, ge=1),
+    page: int = Query(1, ge=1),
+    archive: bool = Query(False),
+    session: AsyncSession = Depends(get_session),
+):
     stmt = (
         select(Post)
         .options(selectinload(Post.author), selectinload(Post.winner))
@@ -31,11 +35,13 @@ async def get_posts(limit: int = Query(5, ge=1),
     return posts
 
 
-@router.get("/posts/{post_id}", response_model=PostResponse, summary="Получить пост по ID")
+@router.get(
+    "/posts/{post_id}", response_model=PostResponse, summary="Получить пост по ID"
+)
 async def get_post(post_id: int, session: AsyncSession = Depends(get_session)):
     result = await session.execute(
         select(Post)
-        .options(selectinload(Post.author),  selectinload(Post.winner))
+        .options(selectinload(Post.author), selectinload(Post.winner))
         .where(Post.id == literal(post_id))
     )
     post = result.scalar_one_or_none()
@@ -45,11 +51,15 @@ async def get_post(post_id: int, session: AsyncSession = Depends(get_session)):
 
 
 @router.post("/posts", response_model=dict, summary="Создать пост")
-async def create_post(post: PostCreate = Depends(PostCreate.as_form),
-                      current_user=Depends(get_current_user),
-                      session: AsyncSession = Depends(get_session)):
+async def create_post(
+    post: PostCreate = Depends(PostCreate.as_form),
+    current_user=Depends(get_current_user),
+    session: AsyncSession = Depends(get_session),
+):
     if current_user.role.name != "seller":
-        raise HTTPException(status_code=403, detail="Пользователь не является продавцом")
+        raise HTTPException(
+            status_code=403, detail="Пользователь не является продавцом"
+        )
     created_at = datetime.now(timezone.utc)
     if post.duration == "24h":
         delta = timedelta(hours=24)
@@ -69,7 +79,7 @@ async def create_post(post: PostCreate = Depends(PostCreate.as_form),
         time_until_locked=time_until_locked,
         author_id=current_user.id,
         created_at=created_at,
-        active=True
+        active=True,
     )
     session.add(new_post)
     await session.commit()
@@ -78,9 +88,11 @@ async def create_post(post: PostCreate = Depends(PostCreate.as_form),
 
 
 @router.patch("/posts/{post_id}/winner", summary="Установить победителя для поста")
-async def set_winner(post_id: int,
-                     current_user=Depends(get_current_user),
-                     session: AsyncSession = Depends(get_session)):
+async def set_winner(
+    post_id: int,
+    current_user=Depends(get_current_user),
+    session: AsyncSession = Depends(get_session),
+):
     result = await session.execute(select(Post).where(Post.id == literal(post_id)))
     post = result.scalar_one_or_none()
     if post is None:
@@ -90,11 +102,16 @@ async def set_winner(post_id: int,
     now = datetime.now(timezone.utc)
     if current_user.id != post.author_id and now < post.time_until_locked:
         raise HTTPException(status_code=409, detail="Торги ещё активны")
-    result = await session.execute(select(Comment).where(Comment.post_id == literal(post_id),
-                                                         Comment.price.isnot(None)))
+    result = await session.execute(
+        select(Comment).where(
+            Comment.post_id == literal(post_id), Comment.price.isnot(None)
+        )
+    )
     bids = result.scalars().all()
     if not bids:
-        raise HTTPException(status_code=400, detail="Нет ставок, победитель не может быть определён")
+        raise HTTPException(
+            status_code=400, detail="Нет ставок, победитель не может быть определён"
+        )
     max_bid = max(bids, key=lambda c: c.price)
     post.winner_id = max_bid.user_id
     post.active = False
@@ -103,12 +120,21 @@ async def set_winner(post_id: int,
         user_id=None,
         price=None,
         created_at=datetime.now(timezone.utc),
-        system_message=f"Победитель: @{max_bid.user_id}. Ставка: {max_bid.price}"
+        system_message=f"Победитель: @{max_bid.user_id}. Ставка: {max_bid.price}",
     )
     session.add(system_comment)
     await session.commit()
-    result = await session.execute(select(User).where(User.id == literal(max_bid.user_id)))
+    result = await session.execute(
+        select(User).where(User.id == literal(max_bid.user_id))
+    )
     winner = result.scalar_one_or_none()
     if winner is None:
         raise HTTPException(status_code=500, detail="Победитель не найден")
-    return {"status": "ok", "winner": {"id": winner.id, "username": winner.username, "price": max_bid.price}}
+    return {
+        "status": "ok",
+        "winner": {
+            "id": winner.id,
+            "username": winner.username,
+            "price": max_bid.price,
+        },
+    }

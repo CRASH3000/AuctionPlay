@@ -12,13 +12,13 @@ class RegistrationRequest(BaseModel):
 
     @classmethod
     def as_form(
-            cls,
-            username: str = Form(),
-            firstname: str = Form(""),
-            lastname: str = Form(""),
-            email: EmailStr = Form(),
-            telegram_username: str = Form(),
-            password: str = Form(),
+        cls,
+        username: str = Form(),
+        firstname: str = Form(""),
+        lastname: str = Form(""),
+        email: EmailStr = Form(),
+        telegram_username: str = Form(),
+        password: str = Form(),
     ):
         return cls(
             username=username,
@@ -36,9 +36,9 @@ class AuthRequest(BaseModel):
 
     @classmethod
     def as_form(
-            cls,
-            username: str = Form(),
-            password: str = Form(),
+        cls,
+        username: str = Form(),
+        password: str = Form(),
     ):
         return cls(username=username, password=password)
 
@@ -64,12 +64,12 @@ class ProfileUpdateRequest(BaseModel):
 
     @classmethod
     def as_form(
-            cls,
-            username: str = Form(),
-            telegram_username: str = Form(),
-            email: EmailStr = Form(),
-            firstname: str = Form(""),
-            lastname: str = Form(""),
+        cls,
+        username: str = Form(),
+        telegram_username: str = Form(),
+        email: EmailStr = Form(),
+        firstname: str = Form(""),
+        lastname: str = Form(""),
     ):
         return cls(
             username=username,
@@ -86,9 +86,9 @@ class SetAvatarRequest(BaseModel):
 
     @classmethod
     def as_form(
-            cls,
-            user: int = Form(),
-            image: str = Form(),
+        cls,
+        user: int = Form(),
+        image: str = Form(),
     ):
         return cls(user=user, image=image)
 
@@ -98,8 +98,8 @@ class UserSetAvatarRequest(BaseModel):
 
     @classmethod
     def as_form(
-            cls,
-            image: str = Form(),
+        cls,
+        image: str = Form(),
     ):
         return cls(image=image)
 
@@ -109,8 +109,8 @@ class RoleUpdateRequest(BaseModel):
 
     @classmethod
     def as_form(
-            cls,
-            role: str = Form(),
+        cls,
+        role: str = Form(),
     ):
         return cls(role=role)
 
