@@ -2,6 +2,7 @@ from fastapi import APIRouter, HTTPException, Depends, Query
 from datetime import datetime, timedelta, timezone
 from typing import List
 from sqlalchemy import literal
+from sqlalchemy.orm import selectinload
 from sqlalchemy.future import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
@@ -18,21 +19,28 @@ async def get_posts(limit: int = Query(5, ge=1),
                     page: int = Query(1, ge=1),
                     archive: bool = Query(False),
                     session: AsyncSession = Depends(get_session)):
-    stmt = select(Post).where(Post.active != literal(archive)).offset((page - 1) * limit).limit(limit)
+    stmt = (
+        select(Post)
+        .options(selectinload(Post.author), selectinload(Post.winner))
+        .where(Post.active != literal(archive))
+        .offset((page - 1) * limit)
+        .limit(limit)
+    )
     result = await session.execute(stmt)
     posts = result.scalars().all()
-    for post in posts:
-        post.text = post.content
     return posts
 
 
 @router.get("/posts/{post_id}", response_model=PostResponse, summary="Получить пост по ID")
 async def get_post(post_id: int, session: AsyncSession = Depends(get_session)):
-    result = await session.execute(select(Post).where(Post.id == literal(post_id)))
+    result = await session.execute(
+        select(Post)
+        .options(selectinload(Post.author),  selectinload(Post.winner))
+        .where(Post.id == literal(post_id))
+    )
     post = result.scalar_one_or_none()
     if post is None:
         raise HTTPException(status_code=404, detail="Пост не найден")
-    post.text = post.content
     return post
 
 
@@ -40,7 +48,7 @@ async def get_post(post_id: int, session: AsyncSession = Depends(get_session)):
 async def create_post(post: PostCreate,
                       current_user=Depends(get_current_user),
                       session: AsyncSession = Depends(get_session)):
-    if current_user.role != "seller":
+    if current_user.role.name != "seller":
         raise HTTPException(status_code=403, detail="Пользователь не является продавцом")
     created_at = datetime.now(timezone.utc)
     if post.duration == "24h":
@@ -77,6 +85,8 @@ async def set_winner(post_id: int,
     post = result.scalar_one_or_none()
     if post is None:
         raise HTTPException(status_code=404, detail="Пост не найден")
+    if post.winner_id is not None:
+        raise HTTPException(status_code=409, detail="Победитель уже определён")
     now = datetime.now(timezone.utc)
     if current_user.id != post.author_id and now < post.time_until_locked:
         raise HTTPException(status_code=409, detail="Торги ещё активны")

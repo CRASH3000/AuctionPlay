@@ -33,8 +33,8 @@ class User(Base):
     jwt = Column(String(1000))
     role_id = Column(Integer, ForeignKey("roles.id"))
     role = relationship("Role", back_populates="users")
-    created_at = Column(DateTime, default=datetime.utcnow)
-    updated_at = Column(DateTime, onupdate=datetime.utcnow)
+    created_at = Column(DateTime(timezone=True), default=datetime.utcnow)
+    updated_at = Column(DateTime(timezone=True), onupdate=datetime.utcnow)
     active = Column(Boolean, default=True)
     posts = relationship("Post", back_populates="author", foreign_keys='Post.author_id')
     comments = relationship("Comment", back_populates="user")
@@ -49,16 +49,20 @@ class Post(Base):
     cover = Column(String(1000))
     price = Column(Integer)
     duration = Column(String(10))
-    time_until_locked = Column(DateTime)
+    time_until_locked = Column(DateTime(timezone=True))
     author_id = Column(Integer, ForeignKey("users.id"))
     author = relationship("User", back_populates="posts", foreign_keys=lambda: [Post.author_id])
     winner_id = Column(Integer, ForeignKey("users.id"), nullable=True)
     winner = relationship("User", foreign_keys=lambda: [Post.winner_id])
-    created_at = Column(DateTime, default=datetime.utcnow)
-    updated_at = Column(DateTime, onupdate=datetime.utcnow)
+    created_at = Column(DateTime(timezone=True), default=datetime.utcnow)
+    updated_at = Column(DateTime(timezone=True), onupdate=datetime.utcnow)
     active = Column(Boolean, default=True)
     comments = relationship("Comment", back_populates="post")
     favorites = relationship("Favorite", back_populates="post")
+
+    @property
+    def text(self):
+        return self.content
 
 
 class Comment(Base):
@@ -69,7 +73,7 @@ class Comment(Base):
     user_id: Optional[int] = Column(Integer, ForeignKey("users.id"), nullable=True)
     post_id = Column(Integer, ForeignKey("posts.id"))
     active = Column(Boolean, default=True)
-    created_at = Column(DateTime, default=datetime.utcnow)
+    created_at = Column(DateTime(timezone=True), default=datetime.utcnow)
     user = relationship("User", back_populates="comments")
     post = relationship("Post", back_populates="comments")
     system_message = Column(String(500), nullable=True)

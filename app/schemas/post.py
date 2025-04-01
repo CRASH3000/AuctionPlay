@@ -1,6 +1,7 @@
 from pydantic import BaseModel
 from typing import Optional
 from app.schemas.user import AuthorResponse
+from datetime import datetime
 
 
 class PostCreate(BaseModel):
@@ -17,9 +18,13 @@ class PostResponse(BaseModel):
     text: str
     cover: str
     author: AuthorResponse
-    created_at: str
-    time_until_locked: str
+    created_at: datetime
+    time_until_locked: datetime
     active: bool
-    winner: Optional[int] = None
+    winner: Optional[AuthorResponse] = None
 
-
+    class Config:
+        from_attributes = True
+        json_encoders = {
+            datetime: lambda v: v.strftime("%Y-%m-%d %H:%M:%S")
+        }

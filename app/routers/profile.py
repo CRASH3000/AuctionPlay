@@ -2,11 +2,12 @@ from fastapi import APIRouter, HTTPException, Depends
 from datetime import datetime, timezone
 
 from sqlalchemy import literal
+from sqlalchemy.orm import selectinload
 from sqlalchemy.future import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.schemas.user import UserResponse, ProfileUpdateRequest, UserSetAvatarRequest, RoleUpdateRequest
-from db.models import User, Post
+from db.models import User, Post, Role, Favorite
 from app.routers.auth import get_current_user
 from db.db import get_session
 
@@ -54,7 +55,9 @@ async def update_avatar(avatar_req: UserSetAvatarRequest,
 
 @router.get("/profile/{user_id}", summary="Получение публичного профиля", response_model=dict)
 async def get_public_profile(user_id: int, session: AsyncSession = Depends(get_session)):
-    result = await session.execute(select(User).where(User.id == literal(user_id)))
+    result = await session.execute(
+        select(User).options(selectinload(User.role)).where(User.id == literal(user_id))
+    )
     target = result.scalar_one_or_none()
     if target is None:
         raise HTTPException(status_code=404, detail="Пользователь не найден")
@@ -63,7 +66,7 @@ async def get_public_profile(user_id: int, session: AsyncSession = Depends(get_s
         "username": target.username,
         "avatar": target.avatar,
         "telegram_username": target.telegram_username,
-        "role": target.role
+        "role": target.role.name
     }
     result = await session.execute(select(Post).where(Post.author_id == literal(user_id)))
     posts = result.scalars().all()
@@ -73,11 +76,15 @@ async def get_public_profile(user_id: int, session: AsyncSession = Depends(get_s
 
 
 @router.get("/me/favorites", summary="Получение избранных постов текущего пользователя")
-async def get_favorites(current_user: User = Depends(get_current_user),
-                        session: AsyncSession = Depends(get_session)):
-    favorite_posts = []
-    for fav in current_user.favorites:
-        favorite_posts.append(fav.post)
+async def get_favorites(
+    current_user=Depends(get_current_user),
+    session: AsyncSession = Depends(get_session)
+):
+    result = await session.execute(
+        select(Favorite).options(selectinload(Favorite.post)).where(Favorite.user_id == current_user.id)
+    )
+    favorites = result.scalars().all()
+    favorite_posts = [fav.post for fav in favorites]
     return {"status": "ok", "favorites": favorite_posts}
 
 
@@ -86,7 +93,7 @@ async def update_user_role(user_id: int,
                            role_update: RoleUpdateRequest,
                            current_user: User = Depends(get_current_user),
                            session: AsyncSession = Depends(get_session)):
-    if current_user.role != "admin":
+    if current_user.role.name != "admin":
         raise HTTPException(status_code=403, detail="Нет доступа: требуется администратор")
     allowed_roles = {"user", "seller", "admin"}
     new_role = role_update.role
@@ -96,7 +103,13 @@ async def update_user_role(user_id: int,
     target = result.scalar_one_or_none()
     if target is None:
         raise HTTPException(status_code=404, detail="Пользователь не найден")
-    target.role = new_role
+
+    role_result = await session.execute(select(Role).where(Role.name == literal(new_role)))
+    role_obj = role_result.scalar_one_or_none()
+    if role_obj is None:
+        raise HTTPException(status_code=400, detail="Роль не найдена")
+
+    target.role = role_obj
     target.updated_at = datetime.now(timezone.utc)
     session.add(target)
     await session.commit()

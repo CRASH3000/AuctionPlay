@@ -22,6 +22,9 @@ async def create_comment(comment: CommentCreate,
     post = result.scalar_one_or_none()
     if post is None:
         raise HTTPException(status_code=404, detail="Пост не найден")
+    now = datetime.now(timezone.utc)
+    if not post.active or now >= post.time_until_locked:
+        raise HTTPException(status_code=403, detail="Аукцион уже завершен")
     if post.author_id == current_user.id:
         raise HTTPException(status_code=403, detail="Автор не может делать ставки под своим постом")
     current_max = post.price

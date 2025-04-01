@@ -3,11 +3,12 @@ from jwt import PyJWTError
 import jwt
 from datetime import datetime, timezone
 from sqlalchemy import or_, literal
+from sqlalchemy.orm import selectinload
 from sqlalchemy.future import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.schemas.user import RegistrationRequest, AuthRequest, UserResponse, SetAvatarRequest
-from db.models import User
+from db.models import User, Role
 from app.core.security import create_tokens, get_password_hash, verify_password
 from app.core.config import SECRET_KEY, ALGORITHM
 from db.db import get_session
@@ -22,6 +23,10 @@ async def registration(response: Response, reg_req: RegistrationRequest, session
     existing = result.scalar_one_or_none()
     if existing:
         raise HTTPException(status_code=409, detail="Username или email уже существует")
+    role_result = await session.execute(select(Role).where(Role.name == literal('user')))
+    default_role = role_result.scalar_one_or_none()
+    if default_role is None:
+        raise HTTPException(status_code=500, detail="Роль 'user' не найдена в базе")
     new_user = User(
         username=reg_req.username,
         firstname=reg_req.firstname,
@@ -30,7 +35,8 @@ async def registration(response: Response, reg_req: RegistrationRequest, session
         telegram_username=reg_req.telegram_username,
         password=get_password_hash(reg_req.password),
         created_at=datetime.now(timezone.utc),
-        updated_at=datetime.now(timezone.utc)
+        updated_at=datetime.now(timezone.utc),
+        role_id=default_role.id
     )
     session.add(new_user)
     await session.commit()
@@ -63,7 +69,11 @@ async def get_current_user(jwt_access: str = Cookie(None), session: AsyncSession
     try:
         payload = jwt.decode(jwt_access, SECRET_KEY, algorithms=[ALGORITHM])
         user_id = payload.get("user_id")
-        result = await session.execute(select(User).where(User.id == user_id))
+        result = await session.execute(
+            select(User)
+            .options(selectinload(User.role))
+            .where(User.id == user_id)
+        )
         user = result.scalar_one_or_none()
         if user is None:
             raise HTTPException(status_code=401, detail="Пользователь не найден")
@@ -134,7 +144,7 @@ async def logout(response: Response, current_user: User = Depends(get_current_us
 @router.delete("/users/{user_id}", summary="Удаление пользователя по ID")
 async def delete_user(user_id: int, current_user: User = Depends(get_current_user),
                       session: AsyncSession = Depends(get_session)):
-    if current_user.role != "admin":
+    if current_user.role.name != "admin":
         raise HTTPException(status_code=403, detail="Нет доступа: требуется администратор")
     result = await session.execute(select(User).where(User.id == literal(user_id)))
     target = result.scalar_one_or_none()
@@ -148,7 +158,7 @@ async def delete_user(user_id: int, current_user: User = Depends(get_current_use
 @router.get("/users/{user_id}", summary="Получение пользователя по ID", response_model=UserResponse)
 async def get_user(user_id: int, current_user: User = Depends(get_current_user),
                    session: AsyncSession = Depends(get_session)):
-    if current_user.role != "admin":
+    if current_user.role.name != "admin":
         raise HTTPException(status_code=403, detail="Нет доступа: требуется администратор")
     result = await session.execute(select(User).where(User.id == literal(user_id)))
     user = result.scalar_one_or_none()
@@ -169,7 +179,7 @@ async def get_user(user_id: int, current_user: User = Depends(get_current_user),
 
 @router.get("/users", summary="Получение списка всех пользователей")
 async def get_users(current_user: User = Depends(get_current_user), session: AsyncSession = Depends(get_session)):
-    if current_user.role != "admin":
+    if current_user.role.name != "admin":
         raise HTTPException(status_code=403, detail="Нет доступа: требуется администратор")
     result = await session.execute(select(User))
     users = result.scalars().all()
