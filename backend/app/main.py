@@ -1,5 +1,5 @@
 from fastapi import FastAPI
-from app.routers import auth, profile, posts, comments, favorites, admin
+from backend.app.routers import profile, admin, posts, favorites, auth, comments
 from fastapi.openapi.utils import get_openapi
 
 app = FastAPI()

@@ -3,9 +3,9 @@ from sqlalchemy import literal
 from sqlalchemy.future import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from app.routers.auth import get_current_user
-from db.models import Post, Favorite
-from db.db import get_session
+from backend.app.routers.auth import get_current_user
+from backend.db.models import Post, Favorite
+from backend.db.db import get_session
 
 router = APIRouter()
 

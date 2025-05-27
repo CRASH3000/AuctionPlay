@@ -5,11 +5,11 @@ from sqlalchemy import literal
 from sqlalchemy.future import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from app.schemas.comments import CommentCreate, CommentResponse
-from app.routers.auth import get_current_user
-from app.schemas.user import AuthorResponse
-from db.models import Comment, User, Post
-from db.db import get_session
+from backend.app.schemas.comments import CommentCreate, CommentResponse
+from backend.app.routers.auth import get_current_user
+from backend.app.schemas.user import AuthorResponse
+from backend.db.models import Comment, User, Post
+from backend.db.db import get_session
 
 router = APIRouter()
 

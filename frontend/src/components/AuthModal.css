@@ -1,0 +1,110 @@
+/* Оверлей для всех модалок */
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background: rgba(0,0,0,0.4);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+}
+
+/* Собственно окно авторизации / регистрации */
+.auth-modal {
+  position: relative;
+  width: 500px;
+  background: #fff;
+  border-radius: 30px;
+  padding: 40px 40px 30px;
+  font-family: 'Raleway', sans-serif;
+
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+/* Крестик “Закрыть” */
+.auth-modal .close-button {
+  position: absolute;
+  top: 20px;
+  right: 25px;
+  font-size: 18px;
+  border: none;
+  background: transparent;
+  color: #000;
+  cursor: pointer;
+}
+
+/* Заголовок модалки */
+.auth-modal .modal-title {
+  font-size: 18px;
+  font-weight: 700;
+  color: #000;
+  text-align: center;
+  margin-bottom: 12px;
+}
+
+/* Группа “лейбл + инпут” */
+.auth-modal .form-group {
+  width: 80%;
+  margin: 10px auto;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+}
+
+.auth-modal .form-group label {
+  font-size: 14px;
+  font-weight: 400;
+  color: #474747;
+  margin-bottom: 4px;
+  text-align: left;
+}
+
+.auth-modal .form-group input {
+  width: 100%;
+  height: 32px;
+  background: #f5f5f5;
+  border: none;
+  border-radius: 15px;
+  padding: 8px 11px;
+  font-size: 14px;
+  color: #000;
+  text-align: left;
+}
+
+/* Контейнер для кнопок (Войти / Регистрация / Отмена) */
+.auth-modal .auth-buttons {
+  width: 80%;
+  margin: 20px auto 0;
+  display: flex;
+  gap: 16px;
+}
+
+/* Общие стили для кнопок модалки */
+.auth-modal .auth-buttons .submit-btn {
+  flex: 1;           /* равное разделение пространства */
+  min-width: 0;      /* чтобы не вылезали за пределы контейнера */
+  background: #90e63f;
+  color: #000;
+  padding: 8px 20px;
+  border-radius: 30px;
+  border: none;
+  font-weight: 600;
+  font-size: 16px;
+  cursor: pointer;
+  white-space: nowrap;
+}
+
+/* Специальный размер для кнопки “Создать профиль” */
+.auth-modal .auth-buttons .create-profile-btn {
+  flex: none;        /* отменяем flex:1 */
+  width: 100%;       /* растягиваем на всю ширину полей */
+  margin: 20px auto 0;
+  display: block;
+}
+
+

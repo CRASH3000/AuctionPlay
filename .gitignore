@@ -127,7 +127,7 @@ celerybeat.pid
 
 # Environments
 .env
-.env.example
+backend/.env.example
 .venv
 env/
 venv/
@@ -167,3 +167,11 @@ cython_debug/
 .idea/
 *.sqlite3
 .vscode/
+
+# node.js
+node_modules/
+
+.DS_Store
+
+Thumbs.db
+

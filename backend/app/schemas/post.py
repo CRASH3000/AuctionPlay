@@ -1,6 +1,6 @@
 from pydantic import BaseModel
 from typing import Optional
-from app.schemas.user import AuthorResponse
+from backend.app.schemas.user import AuthorResponse
 from datetime import datetime
 from fastapi import Form
 

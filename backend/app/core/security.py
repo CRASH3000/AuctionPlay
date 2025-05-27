@@ -1,6 +1,6 @@
 import jwt
 from datetime import datetime, timedelta, UTC
-from app.core.config import (
+from backend.app.core.config import (
     SECRET_KEY,
     ALGORITHM,
     ACCESS_TOKEN_EXPIRE_MINUTES,

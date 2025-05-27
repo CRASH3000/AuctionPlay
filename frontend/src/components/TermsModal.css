@@ -1,0 +1,92 @@
+/* Задний фон */
+.terms-overlay {
+  position: fixed; inset: 0;
+  background: rgba(0,0,0,0.4);
+  display: flex; justify-content: center; align-items: center;
+  z-index: 1100;
+}
+
+/* Само окно */
+.terms-modal {
+  position: relative;
+  width: 700px;
+  max-height: 80vh;
+  background: #fff;
+  border-radius: 30px;
+  display: flex;
+  flex-direction: column;
+  padding: 30px;
+  box-sizing: border-box;
+  font-family: 'Raleway', sans-serif;
+}
+
+/* Кнопка закрыть */
+.terms-close {
+  position: absolute; top: 20px; right: 20px;
+  border: none; background: transparent;
+  font-size: 18px; cursor: pointer;
+    color: #000;
+}
+
+.terms-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.terms-back {
+  background: none;
+  border: none;
+  font-size: 20px;
+  cursor: pointer;
+    color: #000;
+}
+
+/* Заголовок */
+.terms-title {
+  margin: 0;
+  font-size: 20px;
+  font-weight: 700;
+  text-align: center;
+      color: #000;
+}
+
+/* Основной текст — скроллится, если слишком много */
+.terms-body {
+  flex: 1;
+  margin: 20px 0;
+  overflow-y: auto;
+  line-height: 1.5;
+  color: #333;
+}
+
+/* Футер с чекбоксом и кнопкой */
+.terms-footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-top: 20px;
+}
+
+.terms-footer label {
+  font-size: 14px;
+  color: #474747;
+}
+
+.terms-continue {
+  background: #90e63f;
+  border: none;
+  padding: 8px 20px;
+  border-radius: 30px;
+  font-size: 16px;
+  font-weight: 600;
+  cursor: pointer;
+  color: #000;
+}
+
+/* Стили для неактивного состояния */
+.terms-continue:disabled {
+  background: #dfdfdf;
+  color: #888;
+  cursor: not-allowed;     /* знак “запрещено” */
+}

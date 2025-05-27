@@ -3,9 +3,9 @@ from datetime import datetime, timezone
 from sqlalchemy import select, literal
 from sqlalchemy.orm import selectinload
 
-from db.db import async_session
-from db.models import User, Role
-from app.core.security import get_password_hash
+from backend.db.db import async_session
+from backend.db.models import User, Role
+from backend.app.core.security import get_password_hash
 
 
 async def test_users():

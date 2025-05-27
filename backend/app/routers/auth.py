@@ -7,16 +7,16 @@ from sqlalchemy.orm import selectinload
 from sqlalchemy.future import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from app.schemas.user import (
+from backend.app.schemas.user import (
     RegistrationRequest,
     AuthRequest,
     UserResponse,
     SetAvatarRequest,
 )
-from db.models import User, Role
-from app.core.security import create_tokens, get_password_hash, verify_password
-from app.core.config import SECRET_KEY, ALGORITHM
-from db.db import get_session
+from backend.db.models import User, Role
+from backend.app.core.security import create_tokens, get_password_hash, verify_password
+from backend.app.core.config import SECRET_KEY, ALGORITHM
+from backend.db.db import get_session
 
 router = APIRouter()
 
