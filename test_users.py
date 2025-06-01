@@ -31,12 +31,12 @@ async def test_users():
             await session.refresh(seller_role)
 
         admin_user = User(
-            username="admin",
+            username="admin123",
             email="admin@example.com",
-            password=get_password_hash("admin"),
+            password=get_password_hash("admin123"),
             firstname="Admin",
             lastname="Admin",
-            telegram_username="admin",
+            telegram_username="admin123",
             role_id=admin_role.id,
             created_at=datetime.now(timezone.utc),
             updated_at=datetime.now(timezone.utc),
@@ -44,12 +44,12 @@ async def test_users():
         )
 
         seller_user = User(
-            username="seller",
+            username="seller123",
             email="seller@example.com",
-            password=get_password_hash("seller"),
+            password=get_password_hash("seller123"),
             firstname="Seller",
             lastname="Seller",
-            telegram_username="seller",
+            telegram_username="seller123",
             role_id=seller_role.id,
             created_at=datetime.now(timezone.utc),
             updated_at=datetime.now(timezone.utc),
