@@ -14,7 +14,7 @@ class User:
         created_at: Optional[str] = None,
         updated_at: Optional[str] = None,
         role: str = "admin",
-        avatar: str = "/avatars/default.png",
+        avatar: str = "static/avatars/default.png",
         firstname: str = "",
         lastname: str = "",
     ):

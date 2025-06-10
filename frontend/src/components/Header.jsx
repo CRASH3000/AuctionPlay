@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import {useLocation, useNavigate} from "react-router-dom";
 import Logo from "../assets/Logo.png";
+import DefaultAvatar from "../assets/default-avatar.png";
 import "./Header.css";
 
 const API_URL = "http://localhost:8000";
@@ -19,7 +20,20 @@ const Header = ({ onProfileClick, currentUser }) => {
         if (!currentUser || !currentUser.avatar) {
             return null;
         }
-        return `${API_URL}${currentUser.avatar}`;
+        if (
+            currentUser.avatar.endsWith("default.png") ||
+            currentUser.avatar.includes("/avatars/default.png") ||
+            currentUser.avatar.includes("static/avatars/default.png")
+        ) {
+            return null;
+        }
+        if (currentUser.avatar.startsWith("/static/")) {
+            return `${API_URL}${currentUser.avatar}`;
+        }
+        if (currentUser.avatar.startsWith("/avatars/")) {
+            return `${API_URL}/static${currentUser.avatar}`;
+        }
+        return `${API_URL}/${currentUser.avatar.replace(/^\/?/, "")}`;
     };
   const avatarUrl = getAvatarUrl();
 
@@ -65,7 +79,7 @@ const Header = ({ onProfileClick, currentUser }) => {
                       // если есть юзер, но аватарка не задана, показываем дефолтную заглушку
                       <img
                           className="header-avatar-img"
-                          src={`${API_URL}/static/avatars/default.png`}
+                          src={DefaultAvatar}
                           alt="Заглушка аватара"
                       />
                   )
