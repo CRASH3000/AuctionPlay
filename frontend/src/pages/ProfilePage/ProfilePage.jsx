@@ -117,6 +117,25 @@ export default function ProfilePage({ currentUser, onAuthSuccess, onLogout }) {
             console.error("Ошибка при logout:", err);
         }
     };
+    const handleDeleteProfile = async () => {
+        if (!window.confirm("Вы точно хотите удалить свой профиль?")) return;
+        try {
+            const res = await fetch(`${API_URL}/profile/delete`, {
+                method: "DELETE",
+                credentials: "include",
+            });
+            if (res.status === 204) {
+                onLogout();
+                navigate("/login", { replace: true });
+            } else {
+                console.error("Ошибка удаления:", res.status);
+                alert("Не удалось удалить профиль");
+            }
+        } catch (err) {
+            console.error(err);
+            alert("Сетевая ошибка");
+        }
+    };
     const handleAvatarUploaded = (newAvatarUrl) => {
         setProfileInfo((prev) => ({ ...prev, avatar: newAvatarUrl }));
         if (onAuthSuccess) {
@@ -172,6 +191,12 @@ export default function ProfilePage({ currentUser, onAuthSuccess, onLogout }) {
                                 value={currentUser.email}
                                 readOnly
                             />
+                            <button
+                                className="delete-profile-btn"
+                                onClick={handleDeleteProfile}
+                            >
+                                Удалить профиль
+                            </button>
                         </div>
                         {/* Блок аватарки */}
                         <div className="avatar-wrapper">
