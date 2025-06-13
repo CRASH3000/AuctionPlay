@@ -3,7 +3,7 @@ import "./AddPostButton.css";
 
 const AddPostButton = ({ onClick }) => {
   return (
-    <button className="add-post-button" onClick={onClick}>
+    <button className="add-post-button" onClick={onClick} data-testid="add-post-btn">
       <div className="add-post-icon">＋</div>
     </button>
   );
