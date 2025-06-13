@@ -1,0 +1,23 @@
+.add-post-button {
+  position: fixed;
+  bottom: 32px;
+  left: 32px;
+  width: 46px;
+  height: 46px;
+  background: #ffffff;
+  border: none;
+  border-radius: 50%;
+  box-shadow: 0px 4px 14.7px rgba(0, 0, 0, 0.1);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  cursor: pointer;
+  padding: 0;
+}
+
+.add-post-icon {
+  font-size: 32px;
+  color: #000000;
+  line-height: 1;
+  user-select: none;
+}
