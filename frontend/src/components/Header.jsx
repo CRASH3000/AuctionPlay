@@ -44,6 +44,7 @@ const Header = ({ onProfileClick, currentUser }) => {
               src={Logo}
               alt="AuctionPlay"
               className="header-logo-img"
+              data-testid="header-logo"
               onClick={() => navigate("/home")}
           />
 
@@ -55,25 +56,28 @@ const Header = ({ onProfileClick, currentUser }) => {
               <div className="header-filters">
                   <button
                       className={`header-filter ${activeTab === "active" ? "selected" : "unselected"} left`}
+                      data-testid="filter-active-lot"
                       onClick={() => setActiveTab("active")}
                   >
                       Актуальные лоты
                   </button>
                   <button
                       className={`header-filter ${activeTab === "archive" ? "selected" : "unselected"} right`}
+                      data-testid="filter-archive-lot"
                       onClick={() => setActiveTab("archive")}
                   >
                       Архив
                   </button>
               </div>)}
           {/* блок с аватаркой или иконкой*/}
-          <div className="header-profile" onClick={onProfileClick}>
+          <div className="header-profile" onClick={onProfileClick} data-testid="profile-button">
               {currentUser ? (
                   avatarUrl ? (
                       <img
                           className="header-avatar-img"
                           src={`${avatarUrl}?t=${Date.now()}`}
                           alt="Аватар пользователя"
+                          data-testid="user-avatar"
                       />
                   ) : (
                       // если есть юзер, но аватарка не задана, показываем дефолтную заглушку
@@ -81,11 +85,12 @@ const Header = ({ onProfileClick, currentUser }) => {
                           className="header-avatar-img"
                           src={DefaultAvatar}
                           alt="Заглушка аватара"
+                          data-testid="default-avatar"
                       />
                   )
               ) : (
                   // если юзер наш не зашел, то показываем это!!!!!!!!!!!!!!
-                  <span className="header-avatar-letter">👤</span>
+                  <span className="header-avatar-letter" data-testid="guest-icon">👤</span>
               )}
           </div>
       </header>

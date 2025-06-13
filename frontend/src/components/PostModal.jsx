@@ -22,7 +22,7 @@ const PostModal = ({ onClose }) => {
     // Задний фон модалки, ловит клик вне окна
     <div className="modal-overlay" onClick={handleClickOutside}>
       {/* Само модальное окно — через ref отслеживаем "внутрь ли кликнули" */}
-      <div className="post-modal" ref={modalRef}>
+      <div className="post-modal" ref={modalRef} data-testid="post-modal">
         {/* Кнопка закрытия модалки (в правом верхнем углу) */}
         <button className="close-button" onClick={onClose}>✕</button>
 
