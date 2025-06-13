@@ -1,0 +1,15 @@
+.register-page {
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+    background: #f5f5f5;
+}
+.register-container {
+    flex: 1;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+.register-container .auth-modal {
+    width: 500px;
+}

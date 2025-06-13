@@ -116,3 +116,13 @@ async def get_favorites(
     favorites = result.scalars().all()
     favorite_posts = [fav.post for fav in favorites]
     return {"status": "ok", "favorites": favorite_posts}
+
+
+@router.delete("/profile/delete", summary="Удаление своего профиля", status_code=status.HTTP_204_NO_CONTENT,)
+async def delete_my_profile(
+        current_user: User = Depends(get_current_user),
+        session: AsyncSession = Depends(get_session),
+):
+    await session.delete(current_user)
+    await session.commit()
+    return

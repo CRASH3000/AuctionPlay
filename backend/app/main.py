@@ -1,9 +1,29 @@
+from pathlib import Path
 from fastapi import FastAPI
+from fastapi.middleware.cors import CORSMiddleware
+from fastapi.staticfiles import StaticFiles
 from backend.app.routers import profile, admin, posts, favorites, auth, comments
 from fastapi.openapi.utils import get_openapi
 
 app = FastAPI()
 
+origins = [
+    "http://localhost:5173",
+    "http://127.0.0.1:5173",
+]
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=origins,
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
+
+BASE_DIR = Path(__file__).parent
+STATIC_DIR = BASE_DIR / "static"
+
+app.mount("/static", StaticFiles(directory=STATIC_DIR), name="static")
 
 @app.get("/")
 def root():

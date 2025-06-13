@@ -110,3 +110,49 @@ http://localhost:5173
 ```
 
 
+## Инструкция для работы с Бэкендом и Фронтендом
+
+1. Установите Docker и PostgreSQL
+2. Создайте .env и добавьте туда:
+```
+DATABASE_URL=postgresql+asyncpg://postgres:123@localhost:5433/auctionplay
+SECRET_KEY=Тут уже сами сгенерируйте
+DEBUG=True
+```
+3. Перейдите в папку с бэком
+```
+cd backend
+```
+4. Соберите и запустите контейнеры фоном
+```
+docker-compose up -d --build
+```
+5. Примените миграции
+```
+alembic upgrade head
+```
+6. Остановите и заново запустите контейнеры
+```
+docker-compose down
+docker-compose up --build
+```
+7. Можно тестировать бэк, открываем в браузере:
+```
+http://localhost:8000/docs
+```
+8. Во втором терминале запускаем фронт. Для начала перейдем в папку с проектом
+```
+cd frontend
+```
+9. Устанавливаем зависимости
+```
+npm install
+```
+10. Запускаем dev-сервер
+```
+npm run dev
+```
+11. Фронт запущен, открываем в браузере
+```
+http://localhost:5173
+```

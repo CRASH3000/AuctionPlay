@@ -5,14 +5,14 @@
   left: 0;
   width: 100vw;
   height: 100vh;
-  background: rgba(0,0,0,0.4);
+  background: rgba(0, 0, 0, 0.4);
   display: flex;
   justify-content: center;
   align-items: center;
   z-index: 1000;
 }
 
-/* Собственно окно авторизации / регистрации */
+/* Само окно авторизации / регистрации */
 .auth-modal {
   position: relative;
   width: 500px;
@@ -20,13 +20,12 @@
   border-radius: 30px;
   padding: 40px 40px 30px;
   font-family: 'Raleway', sans-serif;
-
   display: flex;
   flex-direction: column;
   align-items: center;
 }
 
-/* Крестик “Закрыть” */
+/* Кнопка “закрыть” */
 .auth-modal .close-button {
   position: absolute;
   top: 20px;
@@ -47,7 +46,7 @@
   margin-bottom: 12px;
 }
 
-/* Группа “лейбл + инпут” */
+/* Группа “лейбл + input” */
 .auth-modal .form-group {
   width: 80%;
   margin: 10px auto;
@@ -76,7 +75,7 @@
   text-align: left;
 }
 
-/* Контейнер для кнопок (Войти / Регистрация / Отмена) */
+/* Контейнер для кнопок (“Войти” / “Регистрация”) */
 .auth-modal .auth-buttons {
   width: 80%;
   margin: 20px auto 0;
@@ -87,7 +86,7 @@
 /* Общие стили для кнопок модалки */
 .auth-modal .auth-buttons .submit-btn {
   flex: 1;           /* равное разделение пространства */
-  min-width: 0;      /* чтобы не вылезали за пределы контейнера */
+  min-width: 0;      /* чтобы не вылезали за границы */
   background: #90e63f;
   color: #000;
   padding: 8px 20px;
@@ -101,10 +100,88 @@
 
 /* Специальный размер для кнопки “Создать профиль” */
 .auth-modal .auth-buttons .create-profile-btn {
-  flex: none;        /* отменяем flex:1 */
-  width: 100%;       /* растягиваем на всю ширину полей */
+  flex: none;
+  width: 100%;
   margin: 20px auto 0;
   display: block;
 }
 
+.auth-modal .error-text {
+  width: 80%;
+  margin: 6px auto 0;
+  color: red;
+  font-size: 13px;
+  text-align: left;
+}
+.terms-header {
+  display: flex;
+  align-items: center;
+  width: 100%;
+  margin-bottom: 10px;
+}
+.terms-back {
+  background: none;
+  border: none;
+  font-size: 20px;
+  cursor: pointer;
+  color: #000;
+  margin-right: 10px;
+}
 
+.terms-placeholder {
+  flex: 1;
+}
+
+.terms-header .modal-title {
+  flex: 1;
+  text-align: center;
+  margin: 0;
+}
+.auth-buttons {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-top: 20px;
+  width: 100%;
+  justify-content: flex-end;
+  padding: 8px 75px;
+}
+.back-button {
+  background: #90e63f;
+  color: #000;
+  border: none;
+  width: 40px;
+  height: 40px;
+  border-radius: 20px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 18px;
+  line-height: 1;
+  cursor: pointer;
+  margin: 0;
+  transform: translateY(10px);
+
+}
+.create-profile-btn {
+  background: #90e63f;
+  color: #000;
+  border: none;
+  border-radius: 20px;
+  padding: 0 20px;
+  height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 16px;
+  font-weight: 600;
+  cursor: pointer;
+  line-height: 1;
+  margin: 0;
+}
+
+.error-text {
+  color: red;
+  font-size: 14px;
+  margin-top: 8px;
+}

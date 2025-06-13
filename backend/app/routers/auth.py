@@ -1,4 +1,7 @@
-from fastapi import APIRouter, HTTPException, Depends, Response, Cookie
+import os
+from pathlib import Path
+
+from fastapi import APIRouter, HTTPException, Depends, Response, Cookie, UploadFile
 from jwt import PyJWTError
 import jwt
 from datetime import datetime, timezone
@@ -29,12 +32,19 @@ async def registration(
 ):
     result = await session.execute(
         select(User).where(
-            or_(User.username == reg_req.username, User.email == reg_req.email)
+            or_(User.username == reg_req.username,
+                User.email == reg_req.email,
+                User.telegram_username == reg_req.telegram_username)
         )
     )
     existing = result.scalar_one_or_none()
     if existing:
-        raise HTTPException(status_code=409, detail="Username или email уже существует")
+        if existing.username == reg_req.username:
+            raise HTTPException(status_code=409, detail="Такой ник уже существует")
+        if existing.email == reg_req.email:
+            raise HTTPException(status_code=409, detail="Такая почта уже существует")
+        if existing.telegram_username == reg_req.telegram_username:
+            raise HTTPException(status_code=409, detail="Такой телеграмм уже существует")
     role_result = await session.execute(
         select(Role).where(Role.name == literal("user"))
     )
@@ -191,10 +201,28 @@ async def set_avatar(
         raise HTTPException(
             status_code=403, detail="Нельзя обновить аватар другого пользователя"
         )
-    current_user.avatar = avatar_req.image
+
+    upload_file: UploadFile = avatar_req.image
+    contents = await upload_file.read()
+
+    this_file = Path(__file__).resolve()
+    base_dir = this_file.parent.parent
+    static_dir = base_dir / "static"
+    avatars_dir = static_dir / "avatars"
+
+    os.makedirs(avatars_dir, exist_ok=True)
+
+    filename = f"{current_user.id}.png"
+    full_path_on_disk = avatars_dir / filename
+
+    with open(full_path_on_disk, "wb") as f:
+        f.write(contents)
+
+    current_user.avatar = f"/static/avatars/{filename}"
     session.add(current_user)
     await session.commit()
-    return {"status": "ok"}
+
+    return {"status": "ok", "avatar_url": current_user.avatar}
 
 
 @router.post("/logout", summary="Выход из системы")
@@ -202,3 +230,4 @@ async def logout(response: Response, current_user: User = Depends(get_current_us
     response.delete_cookie(key="jwt_access")
     response.delete_cookie(key="jwt_request")
     return {"status": "ok", "message": "Logged out successfully"}
+
