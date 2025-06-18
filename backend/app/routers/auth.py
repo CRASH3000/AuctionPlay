@@ -152,6 +152,7 @@ async def me(current_user: User = Depends(get_current_user)):
             if current_user.updated_at
             else ""
         ),
+        role=current_user.role.name,
     )
 
 

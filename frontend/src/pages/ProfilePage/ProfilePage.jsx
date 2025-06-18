@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { useNavigate } from "react-router-dom";
+import {Link, useNavigate} from "react-router-dom";
 import Header from "../../components/Header.jsx";
 import UploadAvatarIcon from "../../assets/upload-avatar-icon.png";
 import ScoreIcon from "../../assets/score.png";
@@ -124,16 +124,17 @@ export default function ProfilePage({ currentUser, onAuthSuccess, onLogout }) {
                 method: "DELETE",
                 credentials: "include",
             });
-            if (res.status === 204) {
+            if (res.ok) {
                 onLogout();
                 navigate("/login", { replace: true });
             } else {
-                console.error("Ошибка удаления:", res.status);
-                alert("Не удалось удалить профиль");
+                const json = await res.json().catch(() => ({}));
+                console.error("Ошибка удаления:", res.status, json);
+                alert("Не удалось удалить профиль: " + (json.detail || res.status));
             }
         } catch (err) {
-            console.error(err);
-            alert("Сетевая ошибка");
+            console.error("Сетевая ошибка:", err);
+            alert("Сетевая ошибка при удалении профиля");
         }
     };
     const handleAvatarUploaded = (newAvatarUrl) => {
@@ -152,10 +153,11 @@ export default function ProfilePage({ currentUser, onAuthSuccess, onLogout }) {
     };
 
     return (
+        <>
+        <Header onProfileClick={() => setShowProfileOptions(true)}
+                currentUser={currentUser}/>
         <div className="profile-page-wrapper">
             {/* Шапка страницы и выпадающее меню */}
-            <Header onProfileClick={() => setShowProfileOptions(true)}
-                    currentUser={currentUser}/>
             <div className="pp-body">
                 <section className="pp-about">
                     <h2 className="pp-section-title">Обо мне</h2>
@@ -200,7 +202,7 @@ export default function ProfilePage({ currentUser, onAuthSuccess, onLogout }) {
                         </div>
                         {/* Блок аватарки */}
                         <div className="avatar-wrapper">
-                            { !profileInfo.avatar || profileInfo.avatar === "/avatars/default.png" ? (
+                            { !profileInfo.avatar || profileInfo.avatar === "static/avatars/default.png" ? (
                                 <img
                                     className="avatar-img"
                                     src={DefaultAvatar}
@@ -262,24 +264,45 @@ export default function ProfilePage({ currentUser, onAuthSuccess, onLogout }) {
                                 activeLots.length ? (
                                     activeLots.map((lot) => (
                                         <div key={lot.id} className="card">
+                                            <Link to={`/posts/${lot.id}`}>
                                             <img
-                                                src={lot.cover}
+                                                src={`${API_URL}${lot.cover}`}
                                                 alt={lot.title}
                                                 className="card-img"
+                                                onError={e =>
+                                                    e.currentTarget.style.display = 'none'}
                                             />
+                                            </Link>
                                             <div className="card-info">
                                                 <div className="info-top">
-                                                    <span className="card-title">{lot.title}</span>
+                                                    <span className="card-title">
+                                                         <Link to={`/posts/${lot.id}`} className="card-title-link">
+                                                             {lot.title}
+                                                         </Link>
+                                                         </span>
                                                     <div className="score-badge">
                                                         <img
                                                             src={ScoreIcon}
                                                             alt="молния"
                                                             className="score-icon"
                                                         />
-                                                        <span className="card-score">{lot.price}</span>
+                                                        <span className="card-score">{lot.bids_count}</span>
                                                     </div>
                                                 </div>
-                                                <button className="fav-unsub">Отписаться</button>
+                                                <button
+                                                    className="delete-lot-btn" onClick={() => {
+                                                    if (window.confirm("Удалить этот лот навсегда?")) {
+                                                        fetch(`${API_URL}/posts/${lot.id}`, {
+                                                            method: "DELETE",
+                                                            credentials: "include"
+                                                        }).then(() => {
+                                                            setActiveLots(activeLots.filter(l => l.id !== lot.id));
+                                                        });
+                                                    }
+                                                }}
+                                                >
+                                                    Удалить лот
+                                                </button>
                                             </div>
                                         </div>
                                     ))
@@ -290,34 +313,53 @@ export default function ProfilePage({ currentUser, onAuthSuccess, onLogout }) {
                                 archiveLots.length ? (
                                     archiveLots.map((lot) => (
                                         <div key={lot.id} className="card">
+                                            <Link to={`/posts/${lot.id}`}>
                                             <img
-                                                src={lot.cover}
+                                                src={`${API_URL}${lot.cover}`}
                                                 alt={lot.title}
                                                 className="card-img"
                                             />
+                                            </Link>
                                             <div className="card-info">
                                                 <div className="info-top">
-                                                    <span className="card-title">{lot.title}</span>
+                                                    <span className="card-title">
+                                                        <Link to={`/posts/${lot.id}`} className="card-title-link">
+                                                            {lot.title}</Link>
+                                                    </span>
                                                     <div className="score-badge">
                                                         <img
                                                             src={ScoreIcon}
                                                             alt="молния"
                                                             className="score-icon"
                                                         />
-                                                        <span className="card-score">{lot.price}</span>
+                                                        <span className="card-score">{lot.bids_count}</span>
                                                     </div>
                                                 </div>
-                                                <button className="fav-unsub">Отписаться</button>
-                                            </div>
+                                                <button
+                                                className="delete-lot-btn" onClick={() => {
+                                                if (window.confirm("Удалить этот лот навсегда?")) {
+                                                    fetch(`${API_URL}/posts/${lot.id}`, {
+                                                        method: "DELETE",
+                                                        credentials:"include"
+                                                }).
+                                                    then(() => {
+                                                        setActiveLots(activeLots.filter(l => l.id !== lot.id));
+                                                    });
+                                                }
+                                            }}
+                                                >
+                                                Удалить лот
+                                            </button>
                                         </div>
-                                    ))
+                                </div>
+                                ))
                                 ) : (
-                                    <p className="archive-empty">Архив пока пуст.</p>
+                                <p className="archive-empty">Архив пока пуст.</p>
                                 )
-                            )}
+                                )}
                         </div>
                     </section>
-                )}
+                    )}
                 {/* Список избранного если юзер */}
                 {profileInfo.role === "user" && (
                     <section className="pp-favorites">
@@ -326,24 +368,40 @@ export default function ProfilePage({ currentUser, onAuthSuccess, onLogout }) {
                             <div className="fav-cards">
                                 {favorites.map((f) => (
                                     <div key={f.id} className="fav-card">
+                                        <Link to={`/posts/${f.id}`}>
                                         <img
-                                            src={f.cover || f.img}
+                                            src={`${API_URL}${f.cover || f.img}`}
                                             className="fav-img"
                                             alt={f.title}
                                         />
+                                        </Link>
                                         <div className="fav-info">
                                             <div className="info-top">
-                                                <span className="fav-title">{f.title}</span>
+                                                <span className="fav-title">
+                                                    <Link to={`/posts/${f.id}`} className="fav-title-link">
+                                                        {f.title}
+                                                    </Link>
+                                                </span>
                                                 <div className="score-badge">
                                                     <img
                                                         src={ScoreIcon}
                                                         alt="молния"
                                                         className="score-icon"
                                                     />
-                                                    <span className="fav-score">{f.price}</span>
+                                                    <span className="fav-score">{f.bids_count}</span>
                                                 </div>
                                             </div>
-                                            <button className="fav-unsub">Отписаться</button>
+                                            <button className="fav-unsub" onClick={async () => {
+                                                await fetch(`${API_URL}/favorites/${f.id}`,{
+                                                 method: "DELETE",
+                                                 credentials: "include",
+                                                    }
+                                                 );
+                                                setFavorites((prev) =>
+                                                    prev.filter((item) => item.id !== f.id)
+                                                );
+                                            }}
+                                                >Отписаться</button>
                                         </div>
                                     </div>
                                 ))}
@@ -358,9 +416,20 @@ export default function ProfilePage({ currentUser, onAuthSuccess, onLogout }) {
             {showSellerForm && (
                 <SellerRequestModal
                     onClose={() => setShowSellerForm(false)}
-                    onSubmit={(link) => {
+                    onSubmit={async () => {
                         setShowSellerForm(false);
-                        setShowPending(true);
+                        try {
+                            const res = await fetch(`${API_URL}/profile/become_seller`, {
+                                method: "POST",
+                                credentials: "include",
+                            });
+                            if (!res.ok) new Error(`Ошибка ${res.status}`);
+                            setProfileInfo(info => ({ ...info, role: "seller" }));
+                            setShowPending(true);
+                        } catch (err) {
+                            console.error("Не удалось стать продавцом:", err);
+                            alert("Пожалуйста, попробуйте позже");
+                        }
                     }}
                 />
             )}
@@ -388,5 +457,6 @@ export default function ProfilePage({ currentUser, onAuthSuccess, onLogout }) {
                 />
             )}
         </div>
+            </>
     );
 }

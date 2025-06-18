@@ -19,7 +19,28 @@
 .profile-page-wrapper .pp-body {
     margin-top: 80px;
 }
+.posts-tabs {
+    display: inline-flex;
+    border-radius: 999px;
+    overflow: hidden;
+    background: #f0f0f0;
+    margin-bottom: 16px;
+}
+.posts-tabs .tab {
+    border: none;
+    padding: 8px 24px;
+    background: #fff;
+    color: #000;
+    cursor: pointer;
+    font-weight: 600;
+}
 
+.posts-tabs .tab.active {
+    background: #e0e0e0;
+}
+.posts-tabs .tab:focus {
+    outline: none;
+}
 .pp-section-title,
 .pp-posts-title {
     font-size: clamp(20px, 4vw, 30px);
@@ -73,7 +94,7 @@
     .pp-about,
     .pp-posts,
     .pp-favorites {
-        padding: 24px 24px 24px 100px;
+        padding: 24px 100px;
     }
 }
 
@@ -193,6 +214,7 @@
     width: 100%;
     aspect-ratio: 1/1;
     object-fit: cover;
+    height: auto;
 }
 
 .card-info,
@@ -217,6 +239,15 @@
     padding: 8px;
     font-weight: 600;
     color: #000;
+}
+.fav-title-link,
+.card-title-link {
+    text-decoration: none;
+    color: #1a1a1a;
+    font-family: 'Raleway', sans-serif;
+    font-size: 24px;
+    font-weight: 600;
+    transition: color 0.2s;
 }
 
 .score-badge {
@@ -249,7 +280,7 @@
     z-index: -1;
 }
 
-.card-unsub,
+.delete-lot-btn,
 .fav-unsub {
     margin-top: auto;
     display: inline-flex;

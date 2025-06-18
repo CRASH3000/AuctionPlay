@@ -1,11 +1,11 @@
 import React, {useEffect, useRef, useState} from "react";
 import TermsModal from "./TermsModal";
 import UploadAvatarModal from "./UploadAvatarModal";
-import "./AuthModal.css";
+import "./AuthForm.css";
 
 const API_URL = "http://localhost:8000";
 
-export default function AuthModal({ onClose, onAuthSuccess,
+export default function AuthForm({ onClose, onAuthSuccess,
                                       initialView = "auth", onSwitchView, isPage = true}) {
     const modalRef = useRef(null);
     const [view, setView] = useState(initialView);

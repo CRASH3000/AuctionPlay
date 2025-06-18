@@ -53,6 +53,7 @@ class UserResponse(BaseModel):
     avatar: str
     created_at: str
     updated_at: str
+    role: str
 
 
 class ProfileUpdateRequest(BaseModel):
@@ -120,3 +121,6 @@ class AuthorResponse(BaseModel):
     username: str
     avatar: str
     telegram_username: str
+
+    class Config:
+        from_attributes = True
