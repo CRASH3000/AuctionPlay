@@ -426,6 +426,7 @@ export default function ProfilePage({ currentUser, onAuthSuccess, onLogout }) {
                             if (!res.ok) new Error(`Ошибка ${res.status}`);
                             setProfileInfo(info => ({ ...info, role: "seller" }));
                             setShowPending(true);
+                            onAuthSuccess({ ...currentUser, role: "seller" });
                         } catch (err) {
                             console.error("Не удалось стать продавцом:", err);
                             alert("Пожалуйста, попробуйте позже");
