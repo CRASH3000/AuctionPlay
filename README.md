@@ -36,7 +36,6 @@ docker run --name auctionplay-postgres -p 5433:5432 \
 
 ```bash
 alembic upgrade head
-docker-compose exec web alembic -c backend/alembic.ini upgrade head
 ```
 
 ## 🚀 Запуск приложения
@@ -141,6 +140,7 @@ docker-compose up -d --build
 7. Примените миграции
 ```
 alembic upgrade head
+docker-compose exec web alembic -c backend/alembic.ini upgrade head
 ```
 8. Остановите и заново запустите контейнеры
 ```
