@@ -36,6 +36,7 @@ docker run --name auctionplay-postgres -p 5433:5432 \
 
 ```bash
 alembic upgrade head
+docker-compose exec web alembic -c backend/alembic.ini upgrade head
 ```
 
 ## 🚀 Запуск приложения
