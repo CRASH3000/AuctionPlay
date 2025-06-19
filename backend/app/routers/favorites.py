@@ -10,7 +10,7 @@ from backend.db.db import get_session
 router = APIRouter()
 
 
-@router.post("/favorites", summary="Добавить пост в избранное")
+@router.post("/favorites/{post_id}", summary="Добавить пост в избранное")
 async def add_to_favorites(
     post_id: int,
     current_user=Depends(get_current_user),
@@ -32,3 +32,22 @@ async def add_to_favorites(
     session.add(favorite)
     await session.commit()
     return {"status": "ok"}
+
+
+@router.delete("/favorites/{post_id}", summary="Удалить пост из избранного")
+async def remove_from_favorites(
+    post_id: int,
+    current_user=Depends(get_current_user),
+    session: AsyncSession = Depends(get_session),
+):
+    result = await session.execute(
+        select(Favorite).where(
+            Favorite.user_id == current_user.id,
+            Favorite.post_id == literal(post_id),
+        )
+    )
+    fav = result.scalar_one_or_none()
+    if not fav:
+        raise HTTPException(status_code=404, detail="Пост не в избранном")
+    await session.delete(fav)
+    await session.commit()

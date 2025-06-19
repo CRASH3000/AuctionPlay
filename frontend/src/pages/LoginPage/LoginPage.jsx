@@ -1,6 +1,6 @@
 import React, {useState} from "react";
 import Header from "../../components/Header.jsx";
-import AuthModal from "../../components/AuthModal.jsx";
+import AuthForm from "../../components/AuthForm.jsx";
 import "./LoginPage.css";
 import {useNavigate} from "react-router-dom";
 
@@ -13,7 +13,7 @@ export default function LoginPage({ onAuthSuccess }) {
             {/* Здесь мы просто показываем шапку (где нет аватара, т. к. currentUser=null) */}
             <Header onProfileClick={() => {}} currentUser={null} />
             <div className="login-container">
-                <AuthModal
+                <AuthForm
                     initialView="auth"
                     isPage={true}
                     onClose={() => {setShowAuthModal(false); navigate("/home");}}

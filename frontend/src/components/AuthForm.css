@@ -85,6 +85,7 @@
 
 /* Общие стили для кнопок модалки */
 .auth-modal .auth-buttons .submit-btn {
+  position: static;
   flex: 1;           /* равное разделение пространства */
   min-width: 0;      /* чтобы не вылезали за границы */
   background: #90e63f;

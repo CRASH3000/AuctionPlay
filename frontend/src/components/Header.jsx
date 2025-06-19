@@ -1,4 +1,3 @@
-import React, { useState } from "react";
 import {useLocation, useNavigate} from "react-router-dom";
 import Logo from "../assets/Logo.png";
 import DefaultAvatar from "../assets/default-avatar.png";
@@ -7,13 +6,13 @@ import "./Header.css";
 const API_URL = "http://localhost:8000";
 
 const Header = ({ onProfileClick, currentUser }) => {
-    // Локальный стейт для выбора вкладки активные/архивные лоты
-  const [activeTab, setActiveTab] = useState("active");
   // хук для перехода по маршрутам
   const navigate = useNavigate();
     // хук для определения текущего пути
-  const { pathname } = useLocation();
+  const { pathname, search  } = useLocation();
   const isProfile = pathname === "/profile";
+  const params = new URLSearchParams(search);
+  const isArchive = params.get("archive") === "1";
 
     // составление полного urlа аватарки (мб поменяю позже)
     const getAvatarUrl = () => {
@@ -45,26 +44,28 @@ const Header = ({ onProfileClick, currentUser }) => {
               alt="AuctionPlay"
               className="header-logo-img"
               data-testid="header-logo"
-              onClick={() => navigate("/home")}
+              onClick={() => navigate("/home?archive=0")}
           />
 
           {isProfile ? (
               // если в лк, то показываем это
-                  <h1 className="header-page-title">Мой профиль</h1>
-              ) : (
+              <div className="page-title-container">
+                  <div className="page-title-box">
+                      <h1 className="page-title">Мой профиль</h1>
+                  </div>
+              </div>
+          ) : (
               // иначе две кнопки-фильтра
               <div className="header-filters">
                   <button
-                      className={`header-filter ${activeTab === "active" ? "selected" : "unselected"} left`}
-                      data-testid="filter-active-lot"
-                      onClick={() => setActiveTab("active")}
+                      className={`header-filter ${!isArchive ? "selected" : ""}`}
+                      onClick={() => navigate("/home?archive=0")}
                   >
                       Актуальные лоты
                   </button>
                   <button
-                      className={`header-filter ${activeTab === "archive" ? "selected" : "unselected"} right`}
-                      data-testid="filter-archive-lot"
-                      onClick={() => setActiveTab("archive")}
+                      className={`header-filter ${ isArchive ? "selected" : ""}`}
+                      onClick={() => navigate("/home?archive=1")}
                   >
                       Архив
                   </button>

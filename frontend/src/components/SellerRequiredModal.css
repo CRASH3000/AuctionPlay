@@ -1,0 +1,44 @@
+.modal-overlay-seller {
+    position: fixed;
+    top: 0; left: 0; right: 0; bottom: 0;
+    background: rgba(0,0,0,0.5);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 100;
+}
+
+.seller-modal {
+    background: #fff;
+    border-radius: 1rem;
+    padding: 2rem;
+    max-width: 400px;
+    width: 90%;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+    color: #333;
+    text-align: center;
+}
+
+.modal-title-seller {
+    margin-bottom: 1rem;
+    font-size: 1.25rem;
+}
+
+.modal-description-seller {
+    margin-bottom: 1.5rem;
+    line-height: 1.4;
+    color: #555;
+}
+
+.modal-button-seller {
+    display: inline-block;
+    padding: 0.75rem 1.5rem;
+    font-size: 1rem;
+    white-space: normal;
+    word-break: break-word;
+    background: #7cfc00;
+    color: #000;
+    border: none;
+    border-radius: 0.5rem;
+    cursor: pointer;
+}

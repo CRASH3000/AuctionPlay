@@ -7,6 +7,7 @@ import LoginPage from "./pages/LoginPage/LoginPage.jsx";
 import RegisterPage from "./pages/RegisterPage/RegisterPage.jsx";
 import ReactDOM from "react-dom/client";
 import "./index.css";
+import PostPage from "./pages/PostPage/PostPage.jsx";
 
 function Main() {
     // Стейт для хранения текущего пользователя
@@ -90,6 +91,7 @@ function Main() {
                         )
                     }
                 />
+                <Route path="/posts/:postId" element={<PostPage currentUser={currentUser} />} />
                 <Route path="*" element={<Navigate to="/home" replace />} />
             </Routes>
         </BrowserRouter>
