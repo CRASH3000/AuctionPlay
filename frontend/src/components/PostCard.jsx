@@ -2,8 +2,9 @@ import React, {useEffect, useRef, useState} from 'react';
 import './PostCard.css';
 import {Link} from "react-router-dom";
 import BidsModal from "../components/BidsModal.jsx";
+import { API_URL } from '../config.js';
 
-const API_URL = "http://localhost:8000";
+
 
 function resolveUrl(path) {
       if (!path) return null;

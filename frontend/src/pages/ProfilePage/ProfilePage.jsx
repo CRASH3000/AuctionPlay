@@ -10,7 +10,18 @@ import UploadAvatarModal from "../../components/UploadAvatarModal.jsx";
 import DefaultAvatar from "../../assets/default-avatar.png";
 import "./ProfilePage.css";
 
-const API_URL = "http://localhost:8000";
+import { 
+  IonPage, 
+  IonHeader, 
+  IonToolbar, 
+  IonTitle, 
+  IonContent,
+  IonSpinner,
+  IonInput,
+  IonButton,
+} from '@ionic/react';
+import { API_URL } from '../../config.js';
+
 
 export default function ProfilePage({ currentUser, onAuthSuccess, onLogout }) {
     const navigate = useNavigate();
@@ -18,6 +29,7 @@ export default function ProfilePage({ currentUser, onAuthSuccess, onLogout }) {
     const [profileInfo, setProfileInfo] = useState(null);
     const [favorites, setFavorites] = useState([]);
     const [error, setError] = useState(null);
+    const [loading, setLoading] = useState(true);
     // стейты для показа модалок
     const [showProfileOptions, setShowProfileOptions] = useState(false);
     const [showSellerForm, setShowSellerForm] = useState(false);
@@ -40,6 +52,7 @@ export default function ProfilePage({ currentUser, onAuthSuccess, onLogout }) {
         const userId = currentUser.id;
 
         async function fetchProfileData() {
+            setLoading(true);
             try {
                 // запрос данных юзера и его постов
                 const res1 = await fetch(`${API_URL}/profile/${userId}`, {
@@ -75,6 +88,8 @@ export default function ProfilePage({ currentUser, onAuthSuccess, onLogout }) {
             } catch (err) {
                 console.error("Ошибка при запросе /me/favorites:", err);
                 setError("Не удалось загрузить избранное");
+            } finally {
+                setLoading(false);
             }
         }
 
@@ -82,17 +97,36 @@ export default function ProfilePage({ currentUser, onAuthSuccess, onLogout }) {
     }, [currentUser]);
     if (error) {
         return (
-            <div className="profile-page-wrapper">
-                <p className="error-text">{error}</p>
-            </div>
+            <IonPage>
+                <IonHeader>
+                    <IonToolbar>
+                        <IonTitle>Профиль</IonTitle>
+                    </IonToolbar>
+                </IonHeader>
+                <IonContent>
+                    <div style={{ padding: '1rem', textAlign: 'center' }}>
+                        <p>{error}</p>
+                    </div>
+                </IonContent>
+            </IonPage>
         );
     }
 
-    if (currentUser && !profileInfo) {
+    if (currentUser && (!profileInfo || loading)) {
         return (
-            <div className="profile-page-wrapper">
-                <p>Загрузка данных профиля...</p>
-            </div>
+            <IonPage>
+                <IonHeader>
+                    <IonToolbar>
+                        <IonTitle>Профиль</IonTitle>
+                    </IonToolbar>
+                </IonHeader>
+                <IonContent>
+                    <div style={{ padding: '2rem', textAlign: 'center' }}>
+                        <IonSpinner name="crescent" />
+                        <p>Загрузка данных профиля...</p>
+                    </div>
+                </IonContent>
+            </IonPage>
         );
     }
     const correctCurrentAvatar =
@@ -153,313 +187,320 @@ export default function ProfilePage({ currentUser, onAuthSuccess, onLogout }) {
     };
 
     return (
-        <>
-        <Header onProfileClick={() => setShowProfileOptions(true)}
-                currentUser={currentUser}/>
-        <div className="profile-page-wrapper">
-            {/* Шапка страницы и выпадающее меню */}
-            <div className="pp-body">
-                <section className="pp-about">
-                    <h2 className="pp-section-title">Обо мне</h2>
-                    <div className="pp-about-inner">
-                        <div className="fields">
-                            <label>Имя</label>
-                            <input
-                                className="input"
-                                value={profileInfo.username}
-                                readOnly
-                            />
-                            <label>Тип профиля</label>
-                            <input
-                                className="input"
-                                value={
-                                    profileInfo.role === "user"
-                                        ? "Покупатель"
-                                        : profileInfo.role === "seller"
-                                            ? "Продавец"
-                                            : profileInfo.role
-                                }
-                                readOnly
-                            />
-                            <label>Логин Telegram</label>
-                            <input
-                                className="input"
-                                value={profileInfo.telegram_username}
-                                readOnly
-                            />
-                            <label>Email</label>
-                            <input
-                                className="input"
-                                value={currentUser.email}
-                                readOnly
-                            />
-                            <button
-                                className="delete-profile-btn"
-                                onClick={handleDeleteProfile}
-                            >
-                                Удалить профиль
-                            </button>
-                        </div>
-                        {/* Блок аватарки */}
-                        <div className="avatar-wrapper">
-                            { !profileInfo.avatar || profileInfo.avatar === "static/avatars/default.png" ? (
-                                <img
-                                    className="avatar-img"
-                                    src={DefaultAvatar}
-                                    alt="Заглушка аватара"
-                                />
-                            ) : (
-                                <img
-                                    className="avatar-img"
-                                    src={`${API_URL}${profileInfo.avatar}?t=${Date.now()}`}
-                                    alt="Аватар пользователя"
-                                />
-                            )}
-
-                            <button
-                                className="avatar-upload"
-                                onClick={() => setShowUploadModal(true)}
-                            >
-                                <img
-                                    src={UploadAvatarIcon}
-                                    alt="Сменить фото"
-                                    className="avatar-upload-icon"
-                                />
-                            </button>
-                        </div>
-                    </div>
-                </section>
-                {/* Если роль юзера, предлагаем стать продавцом */}
-                {profileInfo.role === "user" && (
-                    <section className="pp-seller-section">
-                        <h2 className="pp-section-title">Стать продавцом</h2>
-                        <button
-                            className="pp-seller-button"
-                            onClick={() => setShowSellerForm(true)}
-                        >
-                            Отправить заявку
-                        </button>
-                    </section>
-                )}
-                {/* Если роль продавца - показываем его лоты */}
-                {profileInfo.role === "seller" && (
-                    <section className="pp-posts">
-                        <h2 className="pp-section-title pp-posts-title">Мои посты</h2>
-                        <div className="posts-tabs">
-                            <button
-                                className={`tab ${activeTab === "active" ? "active" : ""}`}
-                                onClick={() => setActiveTab("active")}
-                            >
-                                Актуальные лоты
-                            </button>
-                            <button
-                                className={`tab ${activeTab === "archive" ? "active" : ""}`}
-                                onClick={() => setActiveTab("archive")}
-                            >
-                                Архив
-                            </button>
-                        </div>
-                        <div className="posts-cards">
-                            {activeTab === "active" ? (
-                                activeLots.length ? (
-                                    activeLots.map((lot) => (
-                                        <div key={lot.id} className="card">
-                                            <Link to={`/posts/${lot.id}`}>
-                                            <img
-                                                src={`${API_URL}${lot.cover}`}
-                                                alt={lot.title}
-                                                className="card-img"
-                                                onError={e =>
-                                                    e.currentTarget.style.display = 'none'}
-                                            />
-                                            </Link>
-                                            <div className="card-info">
-                                                <div className="info-top">
-                                                    <span className="card-title">
-                                                         <Link to={`/posts/${lot.id}`} className="card-title-link">
-                                                             {lot.title}
-                                                         </Link>
-                                                         </span>
-                                                    <div className="score-badge">
-                                                        <img
-                                                            src={ScoreIcon}
-                                                            alt="молния"
-                                                            className="score-icon"
-                                                        />
-                                                        <span className="card-score">{lot.bids_count}</span>
-                                                    </div>
-                                                </div>
-                                                <button
-                                                    className="delete-lot-btn" onClick={() => {
-                                                    if (window.confirm("Удалить этот лот навсегда?")) {
-                                                        fetch(`${API_URL}/posts/${lot.id}`, {
-                                                            method: "DELETE",
-                                                            credentials: "include"
-                                                        }).then(() => {
-                                                            setActiveLots(activeLots.filter(l => l.id !== lot.id));
-                                                        });
-                                                    }
-                                                }}
-                                                >
-                                                    Удалить лот
-                                                </button>
-                                            </div>
-                                        </div>
-                                    ))
-                                ) : (
-                                    <p className="active-empty">У вас нет активных лотов.</p>
-                                )
-                            ) : (
-                                archiveLots.length ? (
-                                    archiveLots.map((lot) => (
-                                        <div key={lot.id} className="card">
-                                            <Link to={`/posts/${lot.id}`}>
-                                            <img
-                                                src={`${API_URL}${lot.cover}`}
-                                                alt={lot.title}
-                                                className="card-img"
-                                            />
-                                            </Link>
-                                            <div className="card-info">
-                                                <div className="info-top">
-                                                    <span className="card-title">
-                                                        <Link to={`/posts/${lot.id}`} className="card-title-link">
-                                                            {lot.title}</Link>
-                                                    </span>
-                                                    <div className="score-badge">
-                                                        <img
-                                                            src={ScoreIcon}
-                                                            alt="молния"
-                                                            className="score-icon"
-                                                        />
-                                                        <span className="card-score">{lot.bids_count}</span>
-                                                    </div>
-                                                </div>
-                                                <button
-                                                className="delete-lot-btn" onClick={() => {
-                                                if (window.confirm("Удалить этот лот навсегда?")) {
-                                                    fetch(`${API_URL}/posts/${lot.id}`, {
-                                                        method: "DELETE",
-                                                        credentials:"include"
-                                                }).
-                                                    then(() => {
-                                                        setActiveLots(activeLots.filter(l => l.id !== lot.id));
-                                                    });
-                                                }
-                                            }}
-                                                >
-                                                Удалить лот
-                                            </button>
-                                        </div>
+        <IonPage>
+            <IonHeader style={{ display: 'none' }}>
+                <IonToolbar>
+                    <IonTitle>Мой профиль</IonTitle>
+                </IonToolbar>
+            </IonHeader>
+            
+            <IonContent>
+                <Header onProfileClick={() => setShowProfileOptions(true)}
+                        currentUser={currentUser}/>
+                
+                <div className="profile-page-wrapper">
+                    {/* Шапка страницы и выпадающее меню */}
+                    <div className="pp-body">
+                        <section className="pp-about">
+                            <h2 className="pp-section-title">Обо мне</h2>
+                            <div className="pp-about-inner">
+                                <div className="fields">
+                                    <label>Имя</label>
+                                    <IonInput
+                                        className="input"
+                                        value={profileInfo.username}
+                                        readonly
+                                    />
+                                    <label>Тип профиля</label>
+                                    <IonInput
+                                        className="input"
+                                        value={
+                                            profileInfo.role === "user"
+                                                ? "Покупатель"
+                                                : profileInfo.role === "seller"
+                                                    ? "Продавец"
+                                                    : profileInfo.role
+                                        }
+                                        readonly
+                                    />
+                                    <label>Логин Telegram</label>
+                                    <IonInput
+                                        className="input"
+                                        value={profileInfo.telegram_username}
+                                        readonly
+                                    />
+                                    <label>Email</label>
+                                    <IonInput
+                                        className="input"
+                                        value={currentUser.email}
+                                        readonly
+                                    />
+                                    <button
+                                        className="delete-profile-btn"
+                                        onClick={handleDeleteProfile}
+                                    >
+                                        Удалить профиль
+                                    </button>
                                 </div>
-                                ))
-                                ) : (
-                                <p className="archive-empty">Архив пока пуст.</p>
-                                )
-                                )}
-                        </div>
-                    </section>
-                    )}
-                {/* Список избранного если юзер */}
-                {profileInfo.role === "user" && (
-                    <section className="pp-favorites">
-                        <h2 className="pp-section-title">Избранное</h2>
-                        {favorites.length ? (
-                            <div className="fav-cards">
-                                {favorites.map((f) => (
-                                    <div key={f.id} className="fav-card">
-                                        <Link to={`/posts/${f.id}`}>
+                                {/* Блок аватарки */}
+                                <div className="avatar-wrapper">
+                                    { !profileInfo.avatar || profileInfo.avatar === "static/avatars/default.png" ? (
                                         <img
-                                            src={`${API_URL}${f.cover || f.img}`}
-                                            className="fav-img"
-                                            alt={f.title}
+                                            className="avatar-img"
+                                            src={DefaultAvatar}
+                                            alt="Заглушка аватара"
                                         />
-                                        </Link>
-                                        <div className="fav-info">
-                                            <div className="info-top">
-                                                <span className="fav-title">
-                                                    <Link to={`/posts/${f.id}`} className="fav-title-link">
-                                                        {f.title}
-                                                    </Link>
-                                                </span>
-                                                <div className="score-badge">
+                                    ) : (
+                                        <img
+                                            className="avatar-img"
+                                            src={`${API_URL}${profileInfo.avatar}?t=${Date.now()}`}
+                                            alt="Аватар пользователя"
+                                        />
+                                    )}
+
+                                    <button
+                                        className="avatar-upload"
+                                        onClick={() => setShowUploadModal(true)}
+                                    >
+                                        <img
+                                            src={UploadAvatarIcon}
+                                            alt="Сменить фото"
+                                            className="avatar-upload-icon"
+                                        />
+                                    </button>
+                                </div>
+                            </div>
+                        </section>
+                        {/* Если роль юзера, предлагаем стать продавцом */}
+                        {profileInfo.role === "user" && (
+                            <section className="pp-seller-section">
+                                <h2 className="pp-section-title">Стать продавцом</h2>
+                                <button
+                                    className="pp-seller-button"
+                                    onClick={() => setShowSellerForm(true)}
+                                >
+                                    Отправить заявку
+                                </button>
+                            </section>
+                        )}
+                        {/* Если роль продавца - показываем его лоты */}
+                        {profileInfo.role === "seller" && (
+                            <section className="pp-posts">
+                                <h2 className="pp-section-title pp-posts-title">Мои посты</h2>
+                                <div className="posts-tabs">
+                                    <button
+                                        className={`tab ${activeTab === "active" ? "active" : ""}`}
+                                        onClick={() => setActiveTab("active")}
+                                    >
+                                        Актуальные лоты
+                                    </button>
+                                    <button
+                                        className={`tab ${activeTab === "archive" ? "active" : ""}`}
+                                        onClick={() => setActiveTab("archive")}
+                                    >
+                                        Архив
+                                    </button>
+                                </div>
+                                <div className="posts-cards">
+                                    {activeTab === "active" ? (
+                                        activeLots.length ? (
+                                            activeLots.map((lot) => (
+                                                <div key={lot.id} className="card">
+                                                    <Link to={`/posts/${lot.id}`}>
                                                     <img
-                                                        src={ScoreIcon}
-                                                        alt="молния"
-                                                        className="score-icon"
+                                                        src={`${API_URL}${lot.cover}`}
+                                                        alt={lot.title}
+                                                        className="card-img"
+                                                        onError={e =>
+                                                            e.currentTarget.style.display = 'none'}
                                                     />
-                                                    <span className="fav-score">{f.bids_count}</span>
+                                                    </Link>
+                                                    <div className="card-info">
+                                                        <div className="info-top">
+                                                            <span className="card-title">
+                                                                 <Link to={`/posts/${lot.id}`} className="card-title-link">
+                                                                     {lot.title}
+                                                                 </Link>
+                                                                 </span>
+                                                            <div className="score-badge">
+                                                                <img
+                                                                    src={ScoreIcon}
+                                                                    alt="молния"
+                                                                    className="score-icon"
+                                                                />
+                                                                <span className="card-score">{lot.bids_count}</span>
+                                                            </div>
+                                                        </div>
+                                                        <button
+                                                            className="delete-lot-btn" onClick={() => {
+                                                            if (window.confirm("Удалить этот лот навсегда?")) {
+                                                                fetch(`${API_URL}/posts/${lot.id}`, {
+                                                                    method: "DELETE",
+                                                                    credentials: "include"
+                                                                }).then(() => {
+                                                                    setActiveLots(activeLots.filter(l => l.id !== lot.id));
+                                                                });
+                                                            }
+                                                        }}
+                                                            >
+                                                            Удалить лот
+                                                        </button>
+                                                    </div>
+                                                </div>
+                                            ))
+                                        ) : (
+                                            <p className="active-empty">У вас нет активных лотов.</p>
+                                        )
+                                    ) : (
+                                        archiveLots.length ? (
+                                            archiveLots.map((lot) => (
+                                                <div key={lot.id} className="card">
+                                                    <Link to={`/posts/${lot.id}`}>
+                                                    <img
+                                                        src={`${API_URL}${lot.cover}`}
+                                                        alt={lot.title}
+                                                        className="card-img"
+                                                    />
+                                                    </Link>
+                                                    <div className="card-info">
+                                                        <div className="info-top">
+                                                            <span className="card-title">
+                                                                <Link to={`/posts/${lot.id}`} className="card-title-link">
+                                                                    {lot.title}</Link>
+                                                            </span>
+                                                            <div className="score-badge">
+                                                                <img
+                                                                    src={ScoreIcon}
+                                                                    alt="молния"
+                                                                    className="score-icon"
+                                                                />
+                                                                <span className="card-score">{lot.bids_count}</span>
+                                                            </div>
+                                                        </div>
+                                                        <button
+                                                        className="delete-lot-btn" onClick={() => {
+                                                        if (window.confirm("Удалить этот лот навсегда?")) {
+                                                            fetch(`${API_URL}/posts/${lot.id}`, {
+                                                                method: "DELETE",
+                                                                credentials:"include"
+                                                        }).
+                                                                then(() => {
+                                                                    setActiveLots(activeLots.filter(l => l.id !== lot.id));
+                                                                });
+                                                        }
+                                                    }}
+                                                        >
+                                                        Удалить лот
+                                                    </button>
+                                                </div>
+                                        </div>
+                                            ))
+                                        ) : (
+                                        <p className="archive-empty">Архив пока пуст.</p>
+                                        )
+                                    )}
+                                </div>
+                            </section>
+                        )}
+                        {/* Список избранного если юзер */}
+                        {profileInfo.role === "user" && (
+                            <section className="pp-favorites">
+                                <h2 className="pp-section-title">Избранное</h2>
+                                {favorites.length ? (
+                                    <div className="fav-cards">
+                                        {favorites.map((f) => (
+                                            <div key={f.id} className="fav-card">
+                                                <Link to={`/posts/${f.id}`}>
+                                                <img
+                                                    src={`${API_URL}${f.cover || f.img}`}
+                                                    className="fav-img"
+                                                    alt={f.title}
+                                                />
+                                                </Link>
+                                                <div className="fav-info">
+                                                    <div className="info-top">
+                                                        <span className="fav-title">
+                                                            <Link to={`/posts/${f.id}`} className="fav-title-link">
+                                                                {f.title}
+                                                            </Link>
+                                                        </span>
+                                                        <div className="score-badge">
+                                                            <img
+                                                                src={ScoreIcon}
+                                                                alt="молния"
+                                                                className="score-icon"
+                                                            />
+                                                            <span className="fav-score">{f.bids_count}</span>
+                                                        </div>
+                                                    </div>
+                                                    <button className="fav-unsub" onClick={async () => {
+                                                        await fetch(`${API_URL}/favorites/${f.id}`,{
+                                                         method: "DELETE",
+                                                         credentials: "include",
+                                                            }
+                                                         );
+                                                        setFavorites((prev) =>
+                                                            prev.filter((item) => item.id !== f.id)
+                                                        );
+                                                    }}
+                                                        >Отписаться</button>
                                                 </div>
                                             </div>
-                                            <button className="fav-unsub" onClick={async () => {
-                                                await fetch(`${API_URL}/favorites/${f.id}`,{
-                                                 method: "DELETE",
-                                                 credentials: "include",
-                                                    }
-                                                 );
-                                                setFavorites((prev) =>
-                                                    prev.filter((item) => item.id !== f.id)
-                                                );
-                                            }}
-                                                >Отписаться</button>
-                                        </div>
+                                        ))}
                                     </div>
-                                ))}
-                            </div>
-                        ) : (
-                            <p className="fav-empty">Тут пока ничего нет</p>
+                                ) : (
+                                    <p className="fav-empty">Тут пока ничего нет</p>
+                                )}
+                            </section>
                         )}
-                    </section>
-                )}
-            </div>
-            {/* Модалка заявки на продавца */}
-            {showSellerForm && (
-                <SellerRequestModal
-                    onClose={() => setShowSellerForm(false)}
-                    onSubmit={async () => {
-                        setShowSellerForm(false);
-                        try {
-                            const res = await fetch(`${API_URL}/profile/become_seller`, {
-                                method: "POST",
-                                credentials: "include",
-                            });
-                            if (!res.ok) new Error(`Ошибка ${res.status}`);
-                            setProfileInfo(info => ({ ...info, role: "seller" }));
-                            setShowPending(true);
-
-                            onAuthSuccess({ ...currentUser, role: "seller" });
-
-                        } catch (err) {
-                            console.error("Не удалось стать продавцом:", err);
-                            alert("Пожалуйста, попробуйте позже");
-                        }
-                    }}
-                />
-            )}
-            {/* Модалка "Заявка отправлена" */}
-            {showPending && <PendingModal onClose={() => setShowPending(false)}/>}
-            {/* Контекстное меню профиля */}
-            {showProfileOptions && (
-                <ProfileOptionsModal
-                    onClose={() => setShowProfileOptions(false)}
-                    currentUser={currentUser}
-                    onLoginClick={() => {
-                        navigate("/login");
-                    }}
-                    onLogoutClick={handleLogout}
-                    onProfileNavigate={handleProfileNavigate}
-                />
-            )}
-            {/* Модалка загрузки аватара */}
-            {showUploadModal && (
-                <UploadAvatarModal
-                    userId={currentUser.id}
-                    currentAvatar={correctCurrentAvatar}
-                    onSkip={handleSkipAvatar}
-                    onUploaded={handleAvatarUploaded}
-                />
-            )}
-        </div>
-            </>
+                    </div>
+                    {/* Модалка заявки на продавца */}
+                    {showSellerForm && (
+                        <SellerRequestModal
+                            onClose={() => setShowSellerForm(false)}
+                            onSubmit={async () => {
+                                setShowSellerForm(false);
+                                try {
+                                    const res = await fetch(`${API_URL}/profile/become_seller`, {
+                                        method: "POST",
+                                        credentials: "include",
+                                    });
+                                    if (!res.ok) new Error(`Ошибка ${res.status}`);
+                                    setProfileInfo(info => ({ ...info, role: "seller" }));
+                                    setShowPending(true);
+                                    onAuthSuccess({ ...currentUser, role: "seller" });
+                                } catch (err) {
+                                    console.error("Не удалось стать продавцом:", err);
+                                    alert("Пожалуйста, попробуйте позже");
+                                }
+                            }}
+                        />
+                    )}
+                    {/* Модалка "Заявка отправлена" */}
+                    {showPending && <PendingModal onClose={() => setShowPending(false)}/>}
+                    {/* Контекстное меню профиля */}
+                    {showProfileOptions && (
+                        <ProfileOptionsModal
+                            onClose={() => setShowProfileOptions(false)}
+                            currentUser={currentUser}
+                            onLoginClick={() => {
+                                navigate("/login");
+                            }}
+                            onLogoutClick={handleLogout}
+                            onProfileNavigate={handleProfileNavigate}
+                        />
+                    )}
+                    {/* Модалка загрузки аватара */}
+                    {showUploadModal && (
+                        <UploadAvatarModal
+                            userId={currentUser.id}
+                            currentAvatar={correctCurrentAvatar}
+                            onSkip={handleSkipAvatar}
+                            onUploaded={handleAvatarUploaded}
+                        />
+                    )}
+                </div>
+            </IonContent>
+        </IonPage>
     );
 }

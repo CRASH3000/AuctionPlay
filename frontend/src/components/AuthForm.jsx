@@ -3,12 +3,19 @@ import TermsModal from "./TermsModal";
 import UploadAvatarModal from "./UploadAvatarModal";
 import "./AuthForm.css";
 
-const API_URL = "http://localhost:8000";
+import { 
+  IonInput,
+  IonButton,
+  IonSpinner
+} from '@ionic/react';
+
+import { API_URL } from '../config.js';
 
 export default function AuthForm({ onClose, onAuthSuccess,
                                       initialView = "auth", onSwitchView, isPage = true}) {
     const modalRef = useRef(null);
     const [view, setView] = useState(initialView);
+    const [loading, setLoading] = useState(false);
 
     const [loginUsername, setLoginUsername] = useState("");
     const [loginPassword, setLoginPassword] = useState("");
@@ -40,8 +47,10 @@ export default function AuthForm({ onClose, onAuthSuccess,
     // логин
     const handleLogin = async () => {
         setLoginError("");
+        setLoading(true);
         if (!loginUsername || !loginPassword) {
             setLoginError("Введите логин и пароль");
+            setLoading(false);
             return;
         }
 
@@ -81,6 +90,7 @@ export default function AuthForm({ onClose, onAuthSuccess,
                         setLoginError("Ошибка при входе");
                     }
                 }
+                setLoading(false);
                 return;
             }
             // запрос профиля при успешном входе
@@ -115,6 +125,8 @@ export default function AuthForm({ onClose, onAuthSuccess,
         } catch (err) {
             console.error("Ошибка входа:", err);
             setLoginError("Сетевая ошибка при входе");
+        } finally {
+            setLoading(false);
         }
     };
 
@@ -131,33 +143,39 @@ export default function AuthForm({ onClose, onAuthSuccess,
     // собсна сама регистрация
     const handleSubmitRegister = async () => {
         setRegError("");
+        setLoading(true);
         // проверки
         if (!username || !email || !password || !confirmPassword || !telegram) {
             setRegError("Заполните все поля");
+            setLoading(false);
             return;
         }
         if (username.length < 3 || telegram.length < 3) {
             setRegError("Имя пользователя и Telegram должны быть ≥ 3 символов");
+            setLoading(false);
             return;
         }
         if (password.length < 8) {
             setRegError("Для пароля нужно не менее 8 символов");
+            setLoading(false);
             return;
         }
         const emailPattern = /^\S+@\S+\.\S+$/;
         if (!emailPattern.test(email)) {
             setRegError("Неверный формат email");
+            setLoading(false);
             return;
         }
         if (password !== confirmPassword) {
             setRegError("Пароли не совпадают");
+            setLoading(false);
             return;
         }
         try {
             // форма для регистрации
             const formData = new URLSearchParams();
             formData.append("username", username);
-            formData.append("firstname", ""); // это надо не? на всякий случай оставлю, не мешает
+            formData.append("firstname", "");
             formData.append("lastname", "");
             formData.append("email", email);
             formData.append("telegram_username", telegram);
@@ -181,6 +199,7 @@ export default function AuthForm({ onClose, onAuthSuccess,
                 } else {
                     setRegError("Username или email уже существует");
                 }
+                setLoading(false);
                 return;
             }
             if (res.status === 422) {
@@ -208,10 +227,12 @@ export default function AuthForm({ onClose, onAuthSuccess,
                 } else {
                     setRegError("Ошибка при регистрации (неверные данные)");
                 }
+                setLoading(false);
                 return;
             }
             if (!res.ok) {
                 setRegError(`Ошибка при регистрации (код ${res.status})`);
+                setLoading(false);
                 return;
             }
             // авторизация юзера после регистрации
@@ -230,6 +251,8 @@ export default function AuthForm({ onClose, onAuthSuccess,
         } catch (err) {
             console.error("Ошибка регистрации:", err);
             setRegError("Сетевая ошибка при регистрации");
+        } finally {
+            setLoading(false);
         }
     };
     // извлечение авы нового юзера (если есть)
@@ -262,7 +285,7 @@ export default function AuthForm({ onClose, onAuthSuccess,
                 onAgree={handleAfterAgree}
             >
                 {setRegError && (
-                    <p className="error-text" style={{ marginTop: "1rem" }}>
+                    <p className="error-text">
                         {setRegError}
                     </p>
                 )}
@@ -281,39 +304,42 @@ export default function AuthForm({ onClose, onAuthSuccess,
         );
     }
     return (
+        <>
         <div className="auth-modal" ref={modalRef}>
             {view === "auth" && (
                 <>
                     <h2 className="modal-title">Добро пожаловать!</h2>
                     <div className="form-group">
                         <label>Логин</label>
-                        <input
-                            type="text"
-                            placeholder="Введите логин"
+                            <IonInput
+                                placeholder="example@example.com"
                             value={loginUsername}
-                            onChange={e => setLoginUsername(e.target.value)}
+                                onIonInput={e => setLoginUsername(e.detail.value)}
                         />
                     </div>
                     <div className="form-group">
                         <label>Пароль</label>
-                        <input
+                            <IonInput
                             type="password"
-                            placeholder="Введите пароль"
+                                placeholder="••••••••••••"
                             value={loginPassword}
-                            onChange={e => setLoginPassword(e.target.value)}
+                                onIonInput={e => setLoginPassword(e.detail.value)}
                         />
                     </div>
                     {loginError && <p className="error-text">{loginError}</p>}
 
                     <div className="auth-buttons">
-                        <button className="submit-btn" onClick={handleLogin}>
-                            Войти
+                            <button 
+                                className="submit-btn"
+                                onClick={handleLogin}
+                                disabled={loading}
+                            >
+                                {loading ? <IonSpinner name="crescent" /> : "Войти"}
                         </button>
                         <button
                             className="submit-btn"
-                            onClick={() => {
-                                handleGotoTerms();
-                            }}
+                                onClick={handleGotoTerms}
+                                disabled={loading}
                         >
                             Регистрация
                         </button>
@@ -325,47 +351,45 @@ export default function AuthForm({ onClose, onAuthSuccess,
                     <h2 className="modal-title">Регистрация</h2>
                     <div className="form-group">
                         <label>Имя пользователя</label>
-                        <input
-                            type="text"
+                            <IonInput
                             placeholder="Введите логин"
                             value={username}
-                            onChange={e => setUsername(e.target.value)}
+                                onIonInput={e => setUsername(e.detail.value)}
                         />
                     </div>
                     <div className="form-group">
                         <label>Email</label>
-                        <input
+                            <IonInput
                             type="email"
                             placeholder="example@gmail.com"
                             value={email}
-                            onChange={e => setEmail(e.target.value)}
+                                onIonInput={e => setEmail(e.detail.value)}
                         />
                     </div>
                     <div className="form-group">
                         <label>Пароль</label>
-                        <input
+                            <IonInput
                             type="password"
                             placeholder="Минимум 8 символов"
                             value={password}
-                            onChange={e => setPassword(e.target.value)}
+                                onIonInput={e => setPassword(e.detail.value)}
                         />
                     </div>
                     <div className="form-group">
                         <label>Подтвердите пароль</label>
-                        <input
+                            <IonInput
                             type="password"
                             placeholder="Повторите пароль"
                             value={confirmPassword}
-                            onChange={e => setConfirmPassword(e.target.value)}
+                                onIonInput={e => setConfirmPassword(e.detail.value)}
                         />
                     </div>
                     <div className="form-group">
                         <label>Telegram-логин</label>
-                        <input
-                            type="text"
+                            <IonInput
                             placeholder="@username"
                             value={telegram}
-                            onChange={e => setTelegram(e.target.value)}
+                                onIonInput={e => setTelegram(e.detail.value)}
                         />
                     </div>
                     {regError && <p className="error-text">{regError}</p>}
@@ -378,21 +402,21 @@ export default function AuthForm({ onClose, onAuthSuccess,
                                 setRegError("");
                                 if (onSwitchView) onSwitchView("auth");
                             }}
-                            aria-label="Назад"
+                                disabled={loading}
                         >
                             ←
                         </button>
                         <button
                             className="create-profile-btn"
-                            onClick={() => {
-                                handleSubmitRegister();
-                            }}
+                                onClick={handleSubmitRegister}
+                                disabled={loading}
                         >
-                            Создать профиль
+                                {loading ? <IonSpinner name="crescent" /> : "Создать профиль"}
                         </button>
                     </div>
                 </>
             )}
         </div>
+        </>
     );
 }

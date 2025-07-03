@@ -2,8 +2,9 @@ import {useLocation, useNavigate} from "react-router-dom";
 import Logo from "../assets/Logo.png";
 import DefaultAvatar from "../assets/default-avatar.png";
 import "./Header.css";
+import { API_URL } from '../config.js';
 
-const API_URL = "http://localhost:8000";
+
 
 const Header = ({ onProfileClick, currentUser }) => {
   // хук для перехода по маршрутам

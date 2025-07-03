@@ -167,3 +167,55 @@ npm run dev
 ```
 http://localhost:5173
 ```
+
+
+## Инструкция для работы с мобильной версией
+
+1. Установите Android Studio и Android SDK
+2. Переходим в папку frontend и устанавливаем Ionic React:
+```
+cd frontend
+npm install @ionic/react @ionic/core --legacy-peer-deps
+```
+3. Устанавливаем Capacitor для мобильных приложений
+```
+npm install @capacitor/core @capacitor/cli @capacitor/android 
+```
+4. Собираем проект для эмулятора
+```
+npm run build
+npx cap init AuctionPlay com.auctionplay.app --web-dir=dist
+npx cap add android
+npx cap sync android
+```
+5. В Android Studio создаем виртуальный девайс:
+  1) Заходим в Android Studio
+  2) Нажимаем на "⋮" и выбираем "Virtual Device Manager"
+  3) Выбираем устройство и системный образ, жмякаем finish
+  4) Ждем загрузки и готово!
+6. В терминале уже пишем:
+```
+npx cap open android
+```
+Затем выбираем во вкладке Device Manager созданный образ, если он не выбран по умолчанию
+7. Перед тем как начать работать в эмуляторе, нужно добавить ip адреса для работы с мобильной версией сайта:
+  1) Для начала запускаем сервер:
+  ```
+  npm run dev
+  ```
+  2) Если понадобиться, в backend/app/main.py меняем ip адреса на ваши (после запуска сервера, в терминале они будут указаны как Network: http://192.168.1.8:5173/):
+  ```
+  origins = [
+    "http://localhost:5173",
+    "http://127.0.0.1:5173",
+    "http://192.168.1.8:5173",
+  ]
+  ```
+  3) Также и в frontend/src/config.js:
+  ```
+    if (window.location.protocol === 'capacitor:') {
+    return 'http://192.168.1.8:8000'; // текущий IP, изменить на ваш (порт не менять)
+  }
+  ```
+  4) и готово!
+8. Запускаем эмулятор и можно тестировать!

@@ -9,6 +9,22 @@ import ReactDOM from "react-dom/client";
 import "./index.css";
 import PostPage from "./pages/PostPage/PostPage.jsx";
 
+import '@ionic/react/css/core.css';
+
+import '@ionic/react/css/normalize.css';
+import '@ionic/react/css/structure.css';
+import '@ionic/react/css/typography.css';
+
+import '@ionic/react/css/padding.css';
+import '@ionic/react/css/float-elements.css';
+import '@ionic/react/css/text-alignment.css';
+import '@ionic/react/css/text-transformation.css';
+import '@ionic/react/css/flex-utils.css';
+import '@ionic/react/css/display.css';
+
+import { IonApp } from '@ionic/react';
+import { API_URL } from './config.js';
+
 function Main() {
     // Стейт для хранения текущего пользователя
     const [currentUser, setCurrentUser] = useState(null);
@@ -17,7 +33,7 @@ function Main() {
     useEffect(() => {
         async function fetchMe() {
             try {
-                const res = await fetch("http://localhost:8000/me", {
+                const res = await fetch(`${API_URL}/me`, {
                     method: "GET",
                     credentials: "include",
                 });
@@ -100,6 +116,8 @@ function Main() {
 
 ReactDOM.createRoot(document.getElementById("root")).render(
     <React.StrictMode>
-        <Main />
+        <IonApp>
+            <Main />
+        </IonApp>
     </React.StrictMode>
 );

@@ -11,6 +11,18 @@
   text-rendering: optimizeLegibility;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+
+
+  --ion-color-primary: #90e63f;
+  --ion-color-primary-rgb: 144, 230, 63;
+  --ion-color-primary-contrast: #000000;
+  --ion-color-primary-contrast-rgb: 0, 0, 0;
+  --ion-color-primary-shade: #7fca37;
+  --ion-color-primary-tint: #9be852;
+
+  --ion-background-color: transparent;
+  --ion-toolbar-background: transparent;
+  --ion-header-background: transparent;
 }
 
 a {
@@ -85,5 +97,189 @@ button:focus-visible {
     flex-direction: column;
     align-items: center;
   }
+}
+
+ion-app {
+  background: transparent !important;
+}
+
+ion-content {
+  --background: transparent;
+  --color: inherit;
+}
+
+ion-header {
+  --background: transparent;
+  box-shadow: none !important;
+}
+
+ion-toolbar {
+  --background: transparent;
+  --color: inherit;
+  --border-width: 0;
+  --min-height: auto;
+  padding: 0;
+}
+
+ion-title {
+  font-family: inherit;
+  font-size: inherit;
+  font-weight: inherit;
+  color: inherit;
+  padding: 0;
+}
+
+body, html {
+  background: #f8f8f8 !important;
+  color: #000 !important;
+}
+
+.ios body, .md body {
+  background: #f8f8f8 !important;
+  color: #000 !important;
+}
+
+/* Стилизация Ionic кнопок под существующий дизайн при необходимости */
+ion-button.custom-button {
+  --background: #90e63f;
+  --color: #000;
+  --border-radius: 30px;
+  font-family: 'Raleway', sans-serif;
+  font-weight: 600;
+}
+
+/* Обеспечить работу существующих классов */
+.header,
+.page,
+.post-modal,
+.home-page {
+  /* Эти элементы будут использовать существующие стили */
+  position: relative;
+  z-index: 1;
+}
+
+/* Убедиться, что контейнеры страниц сохраняют светлый фон */
+.profile-page-wrapper,
+.login-page,
+.home-page,
+.page {
+  background: #f8f8f8 !important;
+  color: #000 !important;
+}
+
+/* Принудительно светлый фон для основных областей контента */
+.page-inner,
+.pp-body {
+  background: transparent !important;
+  color: #000 !important;
+}
+
+/* Принудительно сохранить оригинальные стили компонента Header */
+.header {
+  background: transparent !important;
+  color: inherit !important;
+}
+
+.header .header-logo-img,
+.header .header-filters,
+.header .header-filter,
+.header .header-profile {
+  /* Сохранить оригинальные стили компонента Header */
+  background: inherit !important;
+  color: inherit !important;
+}
+
+.header .header-filters {
+  background: #eee !important;
+}
+
+.header .header-filter.selected {
+  background: #fff !important;
+  color: #000 !important;
+}
+
+.header .header-profile {
+  background: #fff !important;
+}
+
+.header .page-title-box {
+  background: #fff !important;
+  color: #1a1a1a !important;
+}
+
+/* Стилизация IonInput под существующие поля ввода */
+ion-input {
+  --background: #f5f5f5;
+  --border-radius: 15px;
+  --padding-start: 11px;
+  --padding-end: 11px;
+  --padding-top: 8px;
+  --padding-bottom: 8px;
+  --color: #000;
+  font-size: 14px;
+  line-height: 22px;
+  height: 32px;
+  --placeholder-color: #999;
+}
+
+ion-input.input {
+  --background: #f5f5f5;
+  border: none;
+  border-radius: 15px;
+  margin: 0;
+}
+
+/* Специальная стилизация для полей ввода в формах авторизации */
+.auth-modal ion-input {
+  --background: #b8c1d3 !important;
+  --border-radius: 30px !important;
+  --padding-start: 15px !important;
+  --padding-end: 15px !important;
+  --padding-top: 12px !important;
+  --padding-bottom: 12px !important;
+  --color: #fff !important;
+  --placeholder-color: #fff !important;
+  font-size: 14px !important;
+  margin-bottom: 10px !important;
+  height: auto !important;
+  min-height: 40px !important;
+  border-radius: 30px !important;
+}
+
+.auth-modal ion-input input {
+  background: #b8c1d3 !important;
+  border-radius: 30px !important;
+  color: #fff !important;
+  border: none !important;
+}
+
+.auth-modal ion-input input::placeholder {
+  color: #fff !important;
+  opacity: 0.8 !important;
+}
+
+/* Удалить все индикаторы фокуса Ionic для полей ввода глобально */
+ion-input {
+  --highlight-color-focused: transparent !important;
+  --highlight-color-valid: transparent !important;
+  --highlight-color-invalid: transparent !important;
+  --highlight-height: 0 !important;
+}
+
+ion-input.ion-focused {
+  --highlight-color-focused: transparent !important;
+}
+
+ion-input::part(native):focus {
+  outline: none !important;
+  box-shadow: none !important;
+  border: none !important;
+}
+
+/* Удалить нижнюю линию границы */
+ion-item {
+  --border-style: none !important;
+  --inner-border-width: 0 !important;
+  --border-width: 0 !important;
 }
 
