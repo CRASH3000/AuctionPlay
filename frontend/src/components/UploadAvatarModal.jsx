@@ -2,8 +2,9 @@ import React, {useRef, useState} from "react";
 import UploadIcon from "../assets/upload-avatar-icon.png";
 import "./UploadAvatarModal.css";
 import DefaultAvatar from "../assets/default-avatar.png";
+import { API_URL } from '../config.js';
 
-const API_URL = "http://localhost:8000";
+
 
 export default function UploadAvatarModal({ userId, onSkip, onUploaded, currentAvatar}) {
     const modalRef = useRef(null);

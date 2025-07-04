@@ -1,5 +1,6 @@
 import React, {useState, useRef, useEffect} from "react";
 import "./PostModal.css";
+import { API_URL } from '../config.js';
 
 const DURATION_MAP = {
   "24 часа": "24h",
@@ -42,7 +43,7 @@ export default function PostModal({ onClose, onPostCreated }) {
     formData.append("duration", DURATION_MAP[selectedDuration]);
 
     try {
-      const res = await fetch("http://localhost:8000/posts", {
+      const res = await fetch(`${API_URL}/posts`, {
         method: "POST",
         credentials: "include",
         body: formData,

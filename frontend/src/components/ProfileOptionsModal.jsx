@@ -2,8 +2,9 @@
 import React, { useRef, useEffect } from "react";
 import "./ProfileOptionsModal.css";
 import DefaultAvatar from "../assets/default-avatar.png";
+import { API_URL } from '../config.js';
 
-const API_URL = "http://localhost:8000";
+
 
 export default function ProfileOptionsModal({
                                                 onClose,

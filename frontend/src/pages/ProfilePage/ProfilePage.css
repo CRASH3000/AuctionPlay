@@ -144,13 +144,14 @@
 
 .avatar-upload {
     position: absolute;
-    bottom: 22px;
-    right: 60px;
-    width: 48px;
-    height: 48px;
+    bottom: 20px;
+    right: 10px;
+    width: 80px;
+    height: 80px;
     border: none;
     background: none;
     cursor: pointer;
+    display: flex;
     align-items: center;
     justify-content: center;
 }
@@ -313,7 +314,7 @@
 .delete-profile-btn {
     margin-top: 1rem;
     background-color: #e74c3c;
-    color: white;
+    color: #000;
     border: none;
     padding: 0.75rem 1.5rem;
     border-radius: 8px;
@@ -323,4 +324,18 @@
 
 .delete-profile-btn:hover {
     background-color: #c0392b;
+}
+
+/* Стили IonInput для полей профиля */
+.pp-about ion-input {
+    --background: #f5f5f5;
+    --color: #000;
+    --padding-start: 12px;
+    --padding-end: 12px;
+    --padding-top: 10px;
+    --padding-bottom: 10px;
+    --border-radius: 15px;
+    font-size: 18px;
+    height: 40px;
+    border-radius: 15px;
 }

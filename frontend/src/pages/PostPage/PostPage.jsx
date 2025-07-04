@@ -3,7 +3,19 @@ import { useParams, useNavigate } from "react-router-dom";
 import Header from "../../components/Header.jsx";
 import "./PostPage.css";
 
-const API_URL = "http://localhost:8000";
+
+import { 
+  IonPage, 
+  IonHeader, 
+  IonToolbar, 
+  IonTitle, 
+  IonContent,
+  IonSpinner,
+  IonInput,
+  IonButton
+} from '@ionic/react';
+import { API_URL } from '../../config.js';
+
 
 export default function PostPage({ currentUser }) {
     const { postId } = useParams();
@@ -12,8 +24,10 @@ export default function PostPage({ currentUser }) {
     const [comments, setComments] = useState([]);
     const [bidValue, setBidValue] = useState("");
     const [error, setError] = useState("");
+    const [loading, setLoading] = useState(true);
 
     useEffect(() => {
+        setLoading(true);
         fetch(`${API_URL}/posts/${postId}`, {
             credentials: "include",
         })
@@ -21,7 +35,10 @@ export default function PostPage({ currentUser }) {
                 if (!r.ok) throw new Error("Пост не найден");
                 return r.json();
             })
-            .then(json => setPost(json))
+            .then(json => {
+                setPost(json);
+                setLoading(false);
+            })
             .catch((e) => {
                 console.error(e);
                 navigate("/home", { replace: true });
@@ -96,10 +113,8 @@ export default function PostPage({ currentUser }) {
             alert(json.detail || "Не удалось завершить аукцион");
             return;
         }
-        +     reloadPost();
+        reloadPost();
     };
-
-    if (!post) return <p className="loading">Загрузка...</p>;
 
     const normalizeAvatar = (avatarPath) => {
         if (!avatarPath) {
@@ -110,105 +125,151 @@ export default function PostPage({ currentUser }) {
         }
         return `${API_URL}/${avatarPath.replace(/^\/?/, "")}`;
     };
-    return (
-        <div className="post-page">
-            <Header
-                currentUser={currentUser}
-                onProfileClick={() =>
-                    currentUser ? navigate("/profile") : navigate("/login")
-                }
-            />
 
-            <div className="post-container">
-                <div className="post-left">
-                    <h2>Название</h2>
-                    <input className="input-field" readOnly value={post.title}/>
-
-                    <h2>Описание товара</h2>
-                    <textarea className="input-field-text" readOnly value={post.text}/>
-
-                    <h2>Начальная ставка</h2>
-                    <input className="input-field" readOnly value={post.price}/>
-
-                    <h2>Конец аукциона</h2>
-                    {post.active
-                        ? <p className="lot-end-time">{post.time_until_locked}</p>
-                        : <p className="lot-ended">Аукцион окончен</p>
-                    }
-
-                    <div className="post-author">
-                        <img
-                            src={normalizeAvatar(post.author.avatar)}
-                            alt={post.author.username}
-                        />
-                        <span className="post-username">{post.author.username}</span>
+    if (loading) {
+        return (
+            <IonPage>
+                <IonHeader style={{ display: 'none' }}>
+                    <IonToolbar>
+                        <IonTitle>Загрузка...</IonTitle>
+                    </IonToolbar>
+                </IonHeader>
+                <IonContent>
+                    <div style={{ padding: '2rem', textAlign: 'center' }}>
+                        <IonSpinner name="crescent" />
+                        <p>Загрузка поста...</p>
                     </div>
-                    {currentUser?.id === post.author.id && post.active && (
-                        <button className="finish-btn" onClick={handleFinish}>
-                            Завершить аукцион
-                        </button>
-                    )}
-                    {!post.active && post.winner && (
-                        <div className="post-winner-section">
-                            <h3 className="winner-label">Победитель аукциона</h3>
-                            <div className="post-winner">
+                </IonContent>
+            </IonPage>
+        );
+    }
+
+    if (!post) {
+        return (
+            <IonPage>
+                <IonHeader style={{ display: 'none' }}>
+                    <IonToolbar>
+                        <IonTitle>Ошибка</IonTitle>
+                    </IonToolbar>
+                </IonHeader>
+                <IonContent>
+                    <div style={{ padding: '2rem', textAlign: 'center' }}>
+                        <p>Пост не найден</p>
+                    </div>
+                </IonContent>
+            </IonPage>
+        );
+    }
+
+    return (
+        <IonPage>
+            <IonHeader style={{ display: 'none' }}>
+                <IonToolbar>
+                    <IonTitle>{post.title}</IonTitle>
+                </IonToolbar>
+            </IonHeader>
+            
+            <IonContent>
+                <div className="post-page">
+                    <Header
+                        currentUser={currentUser}
+                        onProfileClick={() =>
+                            currentUser ? navigate("/profile") : navigate("/login")
+                        }
+                    />
+
+                    <div className="post-container">
+                        <div className="post-left">
+                            <h2>Название</h2>
+                            <IonInput className="input-field" readonly value={post.title}/>
+
+                            <h2>Описание товара</h2>
+                            <textarea className="input-field-text" readOnly value={post.text}/>
+
+                            <h2>Начальная ставка</h2>
+                            <IonInput className="input-field" readonly value={post.price}/>
+
+                            <h2>Конец аукциона</h2>
+                            {post.active
+                                ? <p className="lot-end-time">{post.time_until_locked}</p>
+                                : <p className="lot-ended">Аукцион окончен</p>
+                            }
+
+                            <div className="post-author">
+                                <img
+                                    src={normalizeAvatar(post.author.avatar)}
+                                    alt={post.author.username}
+                                />
+                                <span className="post-username">{post.author.username}</span>
+                            </div>
+                            {currentUser?.id === post.author.id && post.active && (
+                                <button className="finish-btn" onClick={handleFinish}>
+                                    Завершить аукцион
+                                </button>
+                            )}
+                            {!post.active && post.winner && (
+                                <div className="post-winner-section">
+                                    <h3 className="winner-label">Победитель аукциона</h3>
+                                    <div className="post-winner">
+                                    <img
+                                        src={normalizeAvatar(post.winner.avatar)}
+                                        alt={post.winner.username}
+                                    />
+                                    <span className="post-winner-username">{post.winner.username}</span>
+                                </div>
+                                    </div>
+                            )}
+                        </div>
+
+                        <div className="post-right">
                             <img
-                                src={normalizeAvatar(post.winner.avatar)}
-                                alt={post.winner.username}
+                                className="post-cover"
+                                src={`${API_URL}${post.cover}`}
+                                alt={post.title}
                             />
-                            <span className="post-winner-username">{post.winner.username}</span>
                         </div>
-                            </div>
+                    </div>
+                    {post.active && (
+                        <section className="post-comments">
+                        <div className="chat-header">
+                        <h3>Ставки</h3>
+                        </div>
+
+                        <div className="chat-messages">
+                            {comments.length > 0 ? (
+                                comments.map((c, idx) => (
+                                    <div
+                                        key={c.id}
+                                        className={`chat-bubble ${
+                                            c.author?.username === currentUser?.username ? "me" : "them"
+                                        }${idx === 0 ? " highest" : ""}`}
+                                    >
+                                        <div className="bubble-author">{c.author?.username || "—"}</div>
+                                        <div className="bubble-text">💰 {c.price}</div>
+                                    </div>
+                                ))
+                            ) : (
+                                <div className="chat-empty">
+                                    Ставок пока нет.
+                                    <br/>
+                                    <strong>Начальная ставка: 💰 {post.price}</strong>
+                                </div>
+                            )}
+                        </div>
+                        <div className="chat-input">
+                            <IonInput
+                                type="number"
+                                placeholder="Ваша ставка"
+                                value={bidValue}
+                                onIonInput={(e) => setBidValue(e.detail.value)}
+                            />
+                            <button onClick={handleBid}>➤</button>
+                            {error && <div className="chat-error">{error}</div>}
+                        </div>
+                    </section>
                     )}
                 </div>
-
-                <div className="post-right">
-                    <img
-                        className="post-cover"
-                        src={`${API_URL}${post.cover}`}
-                        alt={post.title}
-                    />
-                </div>
-            </div>
-            {post.active && (
-                <section className="post-comments">
-                <div className="chat-header">
-                <h3>Ставки</h3>
-                </div>
-
-                <div className="chat-messages">
-                    {comments.length > 0 ? (
-                        comments.map((c, idx) => (
-                            <div
-                                key={c.id}
-                                className={`chat-bubble ${
-                                    c.author?.username === currentUser?.username ? "me" : "them"
-                                }${idx === 0 ? " highest" : ""}`}
-                            >
-                                <div className="bubble-author">{c.author?.username || "—"}</div>
-                                <div className="bubble-text">💰 {c.price}</div>
-                            </div>
-                        ))
-                    ) : (
-                        <div className="chat-empty">
-                            Ставок пока нет.
-                            <br/>
-                            <strong>Начальная ставка: 💰 {post.price}</strong>
-                        </div>
-                    )}
-                </div>
-                <div className="chat-input">
-                    <input
-                        type="number"
-                        placeholder="Ваша ставка"
-                        value={bidValue}
-                        onChange={(e) => setBidValue(e.target.value)}
-                    />
-                    <button onClick={handleBid}>➤</button>
-                    {error && <div className="chat-error">{error}</div>}
-                </div>
-            </section>
-            )}
-        </div>
+            </IonContent>
+        </IonPage>
     );
 }
